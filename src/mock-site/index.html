@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="css/mock-site.css">
 </head>
 <body>
-  <button id="launch-btn"></button>
+  <button id="launch-btn" style="position: absolute; right: 0;">btn</button>
   <header>
     <div class="wrapper">
       header here
@@ -40,11 +40,11 @@
         script.type = 'module';
         document.body.appendChild(script);
       }
-    },
+    };
     const btn = document.getElementById('launch-btn');
     btn.addEventListener('click', launchGame);
   </script>
 
-  <script src="js/main.js"></script>
+  <!-- <script src="js/main.js"></script> -->
 </body>
 </html>

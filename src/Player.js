@@ -1,5 +1,4 @@
-import { SPRITES } from './sprites/index.js';
-
+/* eslint-disable */
 const STATE = {
   stand: 'stand',
   jump: 'jump',
@@ -12,7 +11,6 @@ export class Player {
   playerBody = null;
   lastDir = 1;
   walkCycleIdx = 0;
-  walkCycleLength = SPRITES.walk.l.length;
   walkUpdateIdx = 0;
   walkUpdateEveryNth = 5;
   accelerationX = 0.25;
@@ -24,9 +22,11 @@ export class Player {
   keySpaceIsDown = false;
   keySpaceWasUpAfterJumpStart = false;
 
-  constructor(engine, render) {
+  constructor(engine, render, SPRITES) {
     this.engine = engine;
     this.render = render;
+    this.walkCycleLength = SPRITES.walk.l.length;
+    this.SPRITES = SPRITES;
     this.createBody();
     this.initCollisionDetection();
     this.initKeyboardControls();
@@ -45,7 +45,7 @@ export class Player {
       mass: 1,
       render: {
         sprite: {
-          texture: '/mario/r-stand.png',
+          texture: this.SPRITES.stand.r,
           xScale: 1,
           yScale: 1,
         },
@@ -211,9 +211,9 @@ export class Player {
 
   getWalkTexture(xSpeed) {
     if (xSpeed > 0 && this.keyLeftIsDown) {
-      return SPRITES.brake.l;
+      return this.SPRITES.brake.l;
     } else if (xSpeed < 0 && this.keyRightIsDown) {
-      return SPRITES.brake.r;
+      return this.SPRITES.brake.r;
     }
 
     if (this.walkUpdateIdx === 0) {
@@ -229,7 +229,7 @@ export class Player {
     // xSpeed is never 0, because then we wouldn't be
     // within this function
     const dir = this.mapSpeedToLetter(xSpeed);
-    return SPRITES.walk[dir][this.walkCycleIdx];
+    return this.SPRITES.walk[dir][this.walkCycleIdx];
   }
 
   // map speed to direction letter for images
@@ -243,13 +243,13 @@ export class Player {
     const lastDirLetter = this.mapSpeedToLetter(this.lastDir);
     switch (state) {
       case STATE.stand:
-        newTexture = SPRITES.stand[lastDirLetter];
+        newTexture = this.SPRITES.stand[lastDirLetter];
         break;
       case STATE.jump:
-        newTexture = SPRITES.jump[lastDirLetter];
+        newTexture = this.SPRITES.jump[lastDirLetter];
         break;
       case STATE.fall:
-        newTexture = SPRITES.fall;
+        newTexture = this.SPRITES.fall;
         break;
       case STATE.walk:
         newTexture = this.getWalkTexture(xSpeed);

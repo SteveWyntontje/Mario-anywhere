@@ -1,47 +1,54 @@
-let platformsAreVisible = false;
+export class PlatformRevealer {
+  platformsAreVisible = false;
 
-const revealPlatforms = (render) => {
-  platformsAreVisible = !platformsAreVisible;
-  const opacity = platformsAreVisible ? 0.2 : 0;
-  render.engine.world.bodies.forEach((body, idx) => {
-    if (body.label === 'platform') {
-      body.render.opacity = opacity;
-    }
-  });
-};
+  constructor(render) {
+    this.render = render;
+    const revealBtn = this.addRevealButton();
 
-const initPlatformRevealer = (render) => {
-  const elmId = 'mario-platform-revealer';
-  document.getElementById(elmId)?.remove();
-  const elm = document.createElement('button');
-  elm.id = elmId;
-  elm.textContent = '?';
-  elm.title = 'Toggle platform visibility';
-
-  document.body.appendChild(elm);
-  const styles = {
-    position: 'fixed',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    top: '40px',
-    right: '5px',
-    width: '1.5rem',
-    height: '1.5rem',
-    borderRadius: '50%',
-    background: 'black',
-    border: 'none',
-    color: 'white',
-    opacity: 0.2,
-    zIndex: 1010,
-  };
-  for (const s in styles) {
-    elm.style[s] = styles[s];
+    revealBtn.addEventListener('click', () => {
+      revealBtn.blur();
+      this.togglePlatformVisibility();
+    });
   }
-  elm.addEventListener('click', () => {
-    elm.blur();
-    revealPlatforms(render);
-  });
-};
 
-export { initPlatformRevealer };
+  addRevealButton() {
+    const btnId = 'mario-platform-revealer';
+    document.getElementById(btnId)?.remove();
+    const btn = document.createElement('button');
+    btn.id = btnId;
+    btn.textContent = '?';
+    btn.title = 'Toggle platform visibility';
+    document.body.appendChild(btn);
+
+    const styles = {
+      position: 'fixed',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      top: '40px',
+      right: '5px',
+      width: '1.5rem',
+      height: '1.5rem',
+      borderRadius: '50%',
+      background: 'black',
+      border: 'none',
+      color: 'white',
+      opacity: 0.2,
+      zIndex: 1010,
+    };
+    for (const s in styles) {
+      btn.style[s] = styles[s];
+    }
+    return btn;
+  }
+
+  togglePlatformVisibility() {
+    this.platformsAreVisible = !this.platformsAreVisible;
+    const opacity = this.platformsAreVisible ? 0.2 : 0;
+    this.render.engine.world.bodies.forEach((body) => {
+      if (body.label === 'platform') {
+        body.render.opacity = opacity;
+      }
+    });
+  }
+}
