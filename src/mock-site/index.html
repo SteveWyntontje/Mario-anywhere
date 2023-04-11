@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="nl-nl">
+<head>
+  <meta charset="UTF-8">
+  
+  <title>mock site</title>
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <link rel="stylesheet" href="css/mock-site.css">
+</head>
+<body>
+  <button id="launch-btn"></button>
+  <header>
+    <div class="wrapper">
+      header here
+    </div>
+  </header>
+  <div class="masthead"></div>
+  <div class="wrapper">
+    <h1>Yay I've got a website</h1>
+    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Reiciendis alias tempora sed voluptas maiores sunt quisquam, cum, culpa porro veritatis repellat quibusdam perferendis, eaque explicabo illo magni autem? Necessitatibus, ullam?</p>
+    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Reiciendis alias tempora sed voluptas maiores sunt quisquam, cum, culpa porro veritatis repellat quibusdam perferendis, eaque explicabo illo magni autem? Necessitatibus, ullam?</p>
+  </div>
+  
+
+  <script>
+    const launchGame = (evt) => {
+      evt.currentTarget.blur(); // otherwise pressing space in game will trigger button
+      const scriptId = 'easter-egg-game-script';
+      if (document.getElementById(scriptId)) {
+        const resetEvent = new CustomEvent('reset.easterEggGame');
+        document.body.dispatchEvent(resetEvent);
+      } else {
+        // const gameUrl = require('@/assets/mario/index.js');
+        const gameUrl = 'http://localhost:8000/index.js';
+        const script = document.createElement('script');
+        script.id = scriptId;
+        script.src = gameUrl;
+        script.type = 'module';
+        document.body.appendChild(script);
+      }
+    },
+    const btn = document.getElementById('launch-btn');
+    btn.addEventListener('click', launchGame);
+  </script>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

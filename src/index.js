@@ -240,8 +240,8 @@ const createSpansForTextNodes = (selectors) => {
 
 const createBodiesForHtmlElements = () => {
   const selectors = {
-    textLevel: ['h1', 'h2'],
-    elementLevel: ['button', '.o-card--balloon', 'p', 'a', 'th', 'td'],
+    textLevel: ['h1', 'h2', 'h3', 'h4'],
+    elementLevel: ['button', '.o-card--balloon', 'p', 'a', 'th', 'td', 'input', 'label'],
   };
   const bodies = [];
 
