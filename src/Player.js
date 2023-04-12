@@ -9,6 +9,7 @@ const STATE = {
 export class Player {
   isInTheAir = true;
   playerBody = null;
+  playerSpriteBody = null;
   lastDir = 1;
   walkCycleIdx = 0;
   walkUpdateIdx = 0;
@@ -35,14 +36,9 @@ export class Player {
     });
   }
 
-  createBody() {
+  createPlayerSpriteBody(x, y, size) {
     const options = {
-      restitution: 0,
-      friction: 0,
-      frictionAir: 0, // frictionAir doesn't work so good for slowing down - better do set deceleration ourselves
-      inertia: Infinity,
-      label: 'player',
-      mass: 1,
+      label: 'playerShape',
       render: {
         sprite: {
           texture: this.SPRITES.stand.r,
@@ -51,10 +47,39 @@ export class Player {
         },
       },
     };
+    const playerShape = Matter.Bodies.rectangle(x, y, size, size, options);
+    return playerShape;
+  }
+
+  createFloorSensorBody(x, y, size) {
+    // create floor sensor so we can distinguish between player standing on top
+    // of something and just colliding with another shape
+    const sensorW = size -4;
+    const sensorH = 10;
+    const sensorOptions = {
+      label: 'floorSensor',
+      render: {fillStyle: 'transparent' },
+    };
+    const floorSensorBody = Matter.Bodies.rectangle(x, y + size/2 - sensorH/2, sensorW, sensorH, sensorOptions);
+    return floorSensorBody;
+  }
+
+  createBody() {
     const size = 32; // size of player sprite
     const x = this.render.options.width / 2 - 250;
     const y = size / 2 + 1; // ceiling ends at 0; put top of player at y=1
-    this.playerBody = Matter.Bodies.rectangle(x, y, size, size, options);
+    this.playerSpriteBody = this.createPlayerSpriteBody(x, y, size);
+    const floorSensorBody = this.createFloorSensorBody(x, y, size);
+
+    this.playerBody = Matter.Body.create({
+      label: 'player',
+      parts: [this.playerSpriteBody, floorSensorBody],
+      restitution: 0,
+      friction: 0,
+      frictionAir: 0, // frictionAir doesn't work so good for slowing down - better do set deceleration ourselves
+      inertia: Infinity,
+      mass: 1,
+    })
     // console.log('this.playerBody:', this.playerBody);
   }
 
@@ -63,9 +88,9 @@ export class Player {
   checkInTheAir(evt) {
     evt.pairs.forEach((pair) => {
       let ply;
-      if (pair.bodyA.label === 'player') {
+      if (pair.bodyA.label === 'floorSensor') {
         ply = pair.bodyA;
-      } else if (pair.bodyB.label === 'player') {
+      } else if (pair.bodyB.label === 'floorSensor') {
         ply = pair.bodyB;
       }
       if (ply) {
@@ -238,7 +263,7 @@ export class Player {
   }
 
   setSprite(state, xSpeed) {
-    const currTexture = this.playerBody.render.sprite.texture;
+    const currTexture = this.playerSpriteBody.render.sprite.texture;
     let newTexture;
     const lastDirLetter = this.mapSpeedToLetter(this.lastDir);
     switch (state) {
@@ -255,7 +280,7 @@ export class Player {
         newTexture = this.getWalkTexture(xSpeed);
     }
     if (newTexture && newTexture !== currTexture) {
-      this.playerBody.render.sprite.texture = newTexture;
+      this.playerSpriteBody.render.sprite.texture = newTexture;
     }
   }
 

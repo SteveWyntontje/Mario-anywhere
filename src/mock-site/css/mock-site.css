@@ -4,24 +4,56 @@ body {
   padding: 0;
 }
 
-html {
-  background: beige;
-}
-
 body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-.wrapper {
+/* .wrapper {
   margin: 0 auto;
   width: 80%;
   max-width: 60em;
-}
+} */
 
 .masthead {
   background: #eee;
   height: 10rem;
 }
 
-h1 {
+h1, h2, h3, p {
+  margin: 0 0 1em;
+}
+
+p:last-child {
+  margin-bottom: 0;
+}
+
+.intro {
+  margin-bottom: 4rem;
+  font-size: 1.25rem;
+}
+
+.media-box {
+  display: flex;
+  column-gap: 2rem;
+  margin: 0 0 4rem;
+}
+
+.media-box__media {
+  width: 33%;
+  flex: 1 1 auto;
+}
+
+.media-box__media--right {
+  order: 2;
+}
+
+.media-box__image {
+  display: block;
+  width: 100%;
+  max-width: 100%;;
+}
+
+.media-box__content {
+  width: 67%;
+  flex: 2 2 auto;
 }

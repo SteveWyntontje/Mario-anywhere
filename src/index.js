@@ -140,9 +140,9 @@ const init = () => {
     .then(() => {
       createAliases();
       initGame(spriteBaseUrl);
-      // addEventListeners();
-      // new PageScrollCoupling(Matter, engine, player);
-      // new PlatformRevealer(render);
+      addEventListeners();
+      new PageScrollCoupling(Matter, engine, player);
+      new PlatformRevealer(render);
     })
     .catch((err) => {
       // eslint-disable-next-line

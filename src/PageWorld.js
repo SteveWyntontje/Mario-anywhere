@@ -72,9 +72,25 @@ export class PageWorld {
     return spans;
   }
 
+  // divide text content of a span into spans per word
+  createWordSpans(parentSpan) {
+    // these spans will always include only one text node
+    const textNode = parentSpan.childNodes[0];
+    const text = textNode.nodeValue;
+    const words = text.split(' ');
+    const spans = words.map(word => {
+      const span = document.createElement('span');
+      span.setAttribute('data-ee-char-group', 'regular');
+      span.textContent = word + ' ';
+      return span;
+    });
+    textNode.replaceWith(...spans);
+    return spans;
+  }
+
   // divide text content of a span up into spans for ascenders, descenders etc
   createCharacterGroupSpans(parentSpan) {
-    // these spans will always only include a text node
+    // these spans will always include only one text node
     const textNode = parentSpan.childNodes[0];
     const text = textNode.nodeValue;
     const asc = '[A-Zbdfhklt]+'; // matching list for ascenders
@@ -207,13 +223,13 @@ export class PageWorld {
 
   createBodiesForHtmlElements() {
     const selectors = {
-      textLevel: ['h1', 'h2', 'h3', 'h4'],
-      elementLevel: ['button', '.o-card--balloon', 'p', 'a', 'th', 'td', 'input', 'label'],
+      textLevel: ['h1', 'h2', 'h3', 'h4', 'p'],
+      elementLevel: ['button', '.o-card--balloon', 'a', 'th', 'td', 'input', 'label', 'img'],
     };
     const bodies = [];
 
     // create spans for elements we want to use at text level
-    const textLevelSpans = this.createSpansForTextNodes(selectors.textLevel, true);
+    const textLevelSpans = this.createSpansForTextNodes(selectors.textLevel);
     textLevelSpans.forEach((span) => {
       // check of the font-size is big enough to want to take height of
       // capitals, ascenders and descenders into account
@@ -225,10 +241,15 @@ export class PageWorld {
           bodies.push(this.createBodyForElm(charGroupSpan));
         });
       } else {
-        bodies.push(this.createBodyForElm(span));
+        const wordSpans = this.createWordSpans(span);
+        wordSpans.forEach((wordSpan) => {
+          bodies.push(this.createBodyForElm(wordSpan));
+        });
       }
     });
 
+    // possible optimization: handle element-level selectors first
+    // and then check if text-level selectors don't fall within element-level
     selectors.elementLevel.forEach((selector) => {
       // console.log('selector:', selector);
       const elms = document.querySelectorAll(selector);
