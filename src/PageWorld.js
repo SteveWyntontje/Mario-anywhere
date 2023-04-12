@@ -1,6 +1,8 @@
+import { TypeCorrectionsMaps } from "./TypeCorrectionsMaps.js";
 export class PageWorld {
   shapeOpacity = 0;
   elmsUsedForBodies = [];
+  typeCorrectionsMaps = null;
 
   constructor(options) {
     this.Matter = options.Matter;
@@ -88,6 +90,41 @@ export class PageWorld {
     return spans;
   }
 
+  createLineSpan(currLineText) {
+    const span = document.createElement('span');
+    span.setAttribute('data-ee-line-group', '');
+    span.textContent = currLineText;
+    return span;
+  }
+
+  // create a span per line of text
+  // this is better because player then moves more smoothly
+  // and we use less spans in total
+  createLineSpans(parentSpan) {
+    const wordSpans = this.createWordSpans(parentSpan);
+    const lineSpans = [];
+    let currLineText = '';
+    let lastTop = null;
+    wordSpans.forEach(wordSpan => {
+      const top = wordSpan.offsetTop;
+      if (top === lastTop) {
+        // still on the same line
+        currLineText += wordSpan.textContent
+      } else {
+        if (currLineText) {
+          const span = this.createLineSpan(currLineText);
+          lineSpans.push(span);
+        }
+        currLineText = wordSpan.textContent;
+        lastTop = top;
+      }
+    });
+    const span = this.createLineSpan(currLineText);
+    lineSpans.push(span);
+    parentSpan.replaceChildren(...lineSpans);
+    return lineSpans;
+  }
+
   // divide text content of a span up into spans for ascenders, descenders etc
   createCharacterGroupSpans(parentSpan) {
     // these spans will always include only one text node
@@ -122,47 +159,14 @@ export class PageWorld {
   // get correction for height of ascenders
   // so we can make player walk on top of lowercase letters
   getTypeCorrections(elm, styles) {
-    // corrections map with correction factors per font, per character group
-    const correctionMaps = {
-      // default is same as arial - that's what chrome appears to use
-      default: {
-        regular: {
-          top: 16 / 53,
-          height: -26 / 53,
-        },
-        asc: {
-          top: 8 / 53,
-          height: -18 / 53,
-        },
-        desc: {
-          top: 16 / 53,
-          height: -16 / 53,
-        },
-      },
-      helveticaneue: {
-        regular: {
-          top: 8 / 48,
-          height: -22 / 48,
-        },
-        asc: {
-          top: 0,
-          height: -14 / 48,
-        },
-        desc: {
-          top: 8 / 48,
-          height: -13 / 48,
-        },
-      },
-    };
+    // use corrections map with correction factors per font, per character group
     // char group can be asc (ascender), desc (descender), regular
     const charGroup = elm.getAttribute('data-ee-char-group') || 'regular';
-    // console.log('charGroup:', charGroup);
 
     // find corrections map, based on font
     const firstFont = styles['font-family']?.split(',')[0] || '';
     const fontName = firstFont.toLowerCase();
-    // const correctionFactor = correctionMaps[fontName] || correctionMaps.default;
-    const correctionsMap = correctionMaps[fontName] || correctionMaps.default;
+    const correctionsMap = this.typeCorrectionsMaps[fontName] || this.typeCorrectionsMaps.default;
     // get correction factors for current character group
     const correctionFactors = correctionsMap[charGroup];
 
@@ -227,6 +231,7 @@ export class PageWorld {
       elementLevel: ['button', '.o-card--balloon', 'a', 'th', 'td', 'input', 'label', 'img'],
     };
     const bodies = [];
+    this.typeCorrectionsMaps = new TypeCorrectionsMaps();
 
     // create spans for elements we want to use at text level
     const textLevelSpans = this.createSpansForTextNodes(selectors.textLevel);
@@ -241,9 +246,9 @@ export class PageWorld {
           bodies.push(this.createBodyForElm(charGroupSpan));
         });
       } else {
-        const wordSpans = this.createWordSpans(span);
-        wordSpans.forEach((wordSpan) => {
-          bodies.push(this.createBodyForElm(wordSpan));
+        const lineSpans = this.createLineSpans(span);
+        lineSpans.forEach((lineSpan) => {
+          bodies.push(this.createBodyForElm(lineSpan));
         });
       }
     });
