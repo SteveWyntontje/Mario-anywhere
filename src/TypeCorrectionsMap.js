@@ -2,9 +2,9 @@ export class TypeCorrectionsMap {
   constructor(options) {
     const defaults = {
       totalHeight: 44, // total height of span
-      ascTop: 7, // top of char with ascender
+      ascTop: 8, // top of char with ascender
       ascHeight: 29, // height of char with ascender
-      regularTop: 15, // top of regular char
+      regularTop: 16, // top of regular char
       regularHeight: 21, // height of regular char
       descHeight: 29, // height of char with descender
       // no need for descenderTop, will be same as regularTop
@@ -20,7 +20,7 @@ export class TypeCorrectionsMap {
     }
     const desc = {
       top: config.regularTop / config.totalHeight,
-      height: (config.regularHeight - config.totalHeight) / config.totalHeight,
+      height: (config.descHeight - config.totalHeight) / config.totalHeight,
     }
 
     return {

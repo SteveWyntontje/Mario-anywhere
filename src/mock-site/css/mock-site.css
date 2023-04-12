@@ -8,15 +8,52 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* .wrapper {
-  margin: 0 auto;
-  width: 80%;
-  max-width: 60em;
-} */
+.launch-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  opacity: 0;
+  transition: opacity 0.2s;
+  cursor: pointer;
+  background: #f73910;
+  border: none;
+  border-radius: 1rem;
+  padding: 0.5rem 1rem;
+  color: white;
+  font-weight: bold;
+}
+
+.launch-btn:hover,
+.launch-btn:focus {
+  opacity: 1;
+}
 
 .masthead {
+  /* margin-bottom: 4rem; */
   background: #eee;
-  height: 10rem;
+  height: 12rem;
+}
+
+header {
+  margin-bottom: 4rem;
+  background: #ccc;
+}
+
+.u-list-bare {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.nav-list {
+  display: flex;
+}
+
+.nav-list a {
+  display: block;
+  padding: 0.5em 1em;
+  color: #333;
+  font-weight: bold;
 }
 
 h1, h2, h3, p {

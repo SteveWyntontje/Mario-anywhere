@@ -130,7 +130,7 @@ export class PageWorld {
     // these spans will always include only one text node
     const textNode = parentSpan.childNodes[0];
     const text = textNode.nodeValue;
-    const asc = '[A-Zbdfhklt]+'; // matching list for ascenders
+    const asc = '[A-Zbdfhklt\']+'; // matching list for ascenders
     const desc = '[gjpqy]+'; // matching list for descenders
     const exclAscDesc = '[^A-Z^b^d^f^h^k^l^t^g^j^p^q^y]+'; // matching list for excluding ascenders and descenders
     const regex = new RegExp(`(${asc})|(${desc})|(${exclAscDesc})`, 'g');
