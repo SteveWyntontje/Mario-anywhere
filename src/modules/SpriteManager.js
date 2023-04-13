@@ -26,7 +26,8 @@ export class SpriteManager {
 
   // return path to filename, based on baseUrl
   p(fileName) {
-    return this.baseUrl + fileName;
+    const playerSpriteFolder = 'mario/';
+    return this.baseUrl + playerSpriteFolder + fileName;
   }
 
   preloadSprites() {

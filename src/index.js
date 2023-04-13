@@ -1,9 +1,9 @@
 /* eslint-disable */
-import { PlatformRevealer } from './PlatformRevealer.js';
-import { PageWorld } from './PageWorld.js';
-import { Player } from './Player.js';
-import { SpriteManager } from './SpriteManager.js';
-import { PageScrollCoupling } from './PageScrollCoupling.js';
+import { PlatformRevealer } from './modules/PlatformRevealer.js';
+import { PageWorld } from './modules/PageWorld.js';
+import { Player } from './modules/Player.js';
+import { SpriteManager } from './modules/SpriteManager.js';
+import { PageScrollCoupling } from './modules/PageScrollCoupling.js';
 
 let Composite;
 let Engine;
@@ -135,7 +135,7 @@ const loadMatter = () => {
 };
 
 const init = () => {
-  const spriteBaseUrl = '../sprites/';
+  const spriteBaseUrl = 'https://jaron.nl/playground/mario-anywhere/sprites/';
   loadMatter()
     .then(() => {
       createAliases();
