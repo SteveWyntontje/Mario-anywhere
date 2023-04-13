@@ -6,7 +6,7 @@ const STATE = {
   fall: 'fall',
   brake: 'brake',
 };
-export class Player {
+class Player {
   isInTheAir = true;
   playerBody = null;
   playerSpriteBody = null;

@@ -1,6 +1,6 @@
 /* eslint-disable */
 // couple page scrolling behavior to player
-export class PageScrollCoupling {
+class PageScrollCoupling {
   constructor(Matter, engine, player) {
     const optimalYMin = 0.25 * window.innerHeight;
     const optimalYMax = 0.75 * window.innerHeight;

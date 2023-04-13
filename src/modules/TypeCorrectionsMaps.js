@@ -1,6 +1,4 @@
-import { TypeCorrectionsMap } from "./TypeCorrectionsMap.js";
-
-export class TypeCorrectionsMaps {
+class TypeCorrectionsMaps {
   configs = {
     default: null,
     helveticaneue: {

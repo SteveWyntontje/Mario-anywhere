@@ -1,4 +1,4 @@
-export class SpriteManager {
+class SpriteManager {
   playerSprites = [
     'r-stand.png',
     'r-1.png',

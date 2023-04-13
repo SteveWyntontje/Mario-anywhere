@@ -1,4 +1,4 @@
-export class PlatformRevealer {
+class PlatformRevealer {
   platformsAreVisible = false;
 
   constructor(render) {
@@ -34,7 +34,7 @@ export class PlatformRevealer {
       border: 'none',
       color: 'white',
       opacity: 0.2,
-      zIndex: 1010,
+      zIndex: 1000000, 
     };
     for (const s in styles) {
       btn.style[s] = styles[s];

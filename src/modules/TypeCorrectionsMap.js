@@ -1,4 +1,4 @@
-export class TypeCorrectionsMap {
+class TypeCorrectionsMap {
   constructor(options) {
     const defaults = {
       totalHeight: 44, // total height of span

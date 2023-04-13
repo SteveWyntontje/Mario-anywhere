@@ -1,5 +1,4 @@
-import { TypeCorrectionsMaps } from "./TypeCorrectionsMaps.js";
-export class PageWorld {
+class PageWorld {
   shapeOpacity = 0;
   elmsUsedForBodies = [];
   typeCorrectionsMaps = null;
