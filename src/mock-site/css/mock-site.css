@@ -94,3 +94,7 @@ p:last-child {
   width: 67%;
   flex: 2 2 auto;
 }
+
+.elm-level {
+  background: #eee;
+}

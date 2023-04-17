@@ -224,16 +224,8 @@ class PageWorld {
     return body;
   }
 
-  createBodiesForHtmlElements() {
-    const selectors = {
-      textLevel: ['h1', 'h2', 'h3', 'h4', 'p'],
-      elementLevel: ['button', '.o-card--balloon', 'a', 'th', 'td', 'input', 'label', 'img'],
-    };
-    const bodies = [];
-    this.typeCorrectionsMaps = new TypeCorrectionsMaps();
-
-    // create spans for elements we want to use at text level
-    const textLevelSpans = this.createSpansForTextNodes(selectors.textLevel);
+  addTextLevelBodies(bodies, selectors) {
+    const textLevelSpans = this.createSpansForTextNodes(selectors);
     textLevelSpans.forEach((span) => {
       // check of the font-size is big enough to want to take height of
       // capitals, ascenders and descenders into account
@@ -251,10 +243,13 @@ class PageWorld {
         });
       }
     });
+    return textLevelSpans;
+  }
 
+  addElementLevelBodies(bodies, selectors) {
     // possible optimization: handle element-level selectors first
     // and then check if text-level selectors don't fall within element-level
-    selectors.elementLevel.forEach((selector) => {
+    selectors.forEach((selector) => {
       // console.log('selector:', selector);
       const elms = document.querySelectorAll(selector);
       elms.forEach((elm) => {
@@ -271,6 +266,18 @@ class PageWorld {
         }
       });
     });
+  }
+
+  createBodiesForHtmlElements() {
+    const selectors = {
+      textLevel: ['h1', 'h2', 'h3', 'h4', 'p'],
+      elementLevel: ['button', '.o-card--balloon', 'a', 'th', 'td', 'input', 'label', 'img', '.elm-level'],
+    };
+    const bodies = [];
+    this.typeCorrectionsMaps = new TypeCorrectionsMaps();
+
+    this.addTextLevelBodies(bodies, selectors.textLevel);
+    this.addElementLevelBodies(bodies, selectors.elementLevel);
 
     return bodies;
   }
