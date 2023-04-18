@@ -8,12 +8,7 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-.launch-btn {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  opacity: 0;
-  transition: opacity 0.2s;
+button {
   cursor: pointer;
   background: #f73910;
   border: none;
@@ -21,6 +16,15 @@ body {
   padding: 0.5rem 1rem;
   color: white;
   font-weight: bold;
+  font-size: inherit;
+}
+
+.launch-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  opacity: 0;
+  transition: opacity 0.2s;
 }
 
 .launch-btn:hover,
@@ -95,6 +99,8 @@ p:last-child {
   flex: 2 2 auto;
 }
 
-.elm-level {
+.block-level {
   background: #eee;
+  border: 1px solid;
+  padding: 1em;
 }

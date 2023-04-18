@@ -48,8 +48,9 @@
           <div class="media-box__content">
             <h2>Some title here</h2>
             <p>
-              Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.
+              Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt <a href="#">ut laoreet dolore</a> magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.
             </p>
+            <button style="margin-top: 2em;">I'm a button</button>
           </div>
         </div>
       </div>
@@ -77,7 +78,7 @@
           <div class="media-box__media">
             <img src="https://placekitten.com/400/300" class="media-box__image">
           </div>
-          <div class="media-box__content elm-level">
+          <div class="media-box__content block-level">
             <h2>This block works as a whole</h2>
             <p>
               Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.
@@ -90,27 +91,53 @@
   
 
   <script>
+    const requireClick = false;
+    const useBundle = false;
+
+    const addScript = src => {
+      const script = document.createElement('script');
+      script.src = src;
+      document.body.appendChild(script);
+      return script;
+    }
+
     const launchGame = (evt) => {
-      evt.currentTarget.blur(); // otherwise pressing space in game will trigger button
-      const scriptId = 'easter-egg-game-script';
-      if (document.getElementById(scriptId)) {
-        const resetEvent = new CustomEvent('reset.easterEggGame');
-        document.body.dispatchEvent(resetEvent);
+      evt?.currentTarget.blur(); // otherwise pressing space in game will trigger button
+      if (useBundle) {
+        const scriptId = 'easter-egg-game-script';
+        if (document.getElementById(scriptId)) {
+          const resetEvent = new CustomEvent('reset.easterEggGame');
+          document.body.dispatchEvent(resetEvent);
+        } else {
+          // const gameUrl = require('@/assets/mario/index.js');
+          // const gameUrl = 'http://localhost:8000/index.js';
+          const gameUrl = 'http://localhost:8000/dist/mario.js';
+          const script = addScript(gameUrl);
+          script.id = scriptId;
+        }
       } else {
-        // const gameUrl = require('@/assets/mario/index.js');
-        // const gameUrl = 'http://localhost:8000/index.js';
-        const gameUrl = 'http://localhost:8000/dist/mario.js';
-        const script = document.createElement('script');
-        script.id = scriptId;
-        script.src = gameUrl;
-        script.type = 'module';
-        document.body.appendChild(script);
+        const moduleScripts = [
+          'PageScrollCoupling.js',
+          'PageWorld.js',
+          'PlatformRevealer.js',
+          'Player.js',
+          'SpriteManager.js',
+          'TypeCorrectionsMap.js',
+          'TypeCorrectionsMaps.js',
+        ];
+        moduleScripts.forEach(src => {
+          addScript(`../modules/${src}`);
+        });
+        addScript('../index.js');
       }
     };
-    const btn = document.getElementById('launch-btn');
-    btn.addEventListener('click', launchGame);
-  </script>
 
-  <!-- <script src="js/main.js"></script> -->
+    if (requireClick) {
+      const btn = document.getElementById('launch-btn');
+      btn.addEventListener('click', launchGame);
+    } else {
+      launchGame();
+    }
+  </script>
 </body>
 </html>

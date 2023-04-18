@@ -46,6 +46,7 @@ const initWorld = (SPRITES) => {
   };
   const pageWorld = new PageWorld(pageWorldOptions);
   const wallsAndGround = pageWorld.createWallsAndGround();
+  // const elms = pageWorld.createBodiesForHtmlElements0();
   const elms = pageWorld.createBodiesForHtmlElements();
 
   player = new Player(engine, render, SPRITES).playerBody;
