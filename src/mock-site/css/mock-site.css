@@ -19,6 +19,14 @@ button {
   font-size: inherit;
 }
 
+header {
+  background: #ccc;
+}
+
+.o-content-section {
+  margin-bottom: 4rem;
+}
+
 .launch-btn {
   position: absolute;
   top: 0.5rem;
@@ -33,14 +41,8 @@ button {
 }
 
 .masthead {
-  /* margin-bottom: 4rem; */
   background: #eee;
   height: 12rem;
-}
-
-header {
-  margin-bottom: 4rem;
-  background: #ccc;
 }
 
 .u-list-bare {
@@ -69,14 +71,12 @@ p:last-child {
 }
 
 .intro {
-  margin-bottom: 4rem;
   font-size: 1.25rem;
 }
 
 .media-box {
   display: flex;
   column-gap: 2rem;
-  margin: 0 0 4rem;
 }
 
 .media-box__media {
@@ -102,5 +102,6 @@ p:last-child {
 .block-level {
   background: #eee;
   border: 1px solid;
+  border-radius: 1em;
   padding: 1em;
 }

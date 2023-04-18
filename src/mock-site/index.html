@@ -9,11 +9,12 @@
   
   <link rel="stylesheet" href="css/bootstrap-grid.min.css">
   <link rel="stylesheet" href="css/mock-site.css">
+  <link rel="stylesheet" href="css/mock-form.css">
 </head>
 <body>
   <button id="launch-btn" class="launch-btn">Give me Mario!</button>
   <div class="masthead"></div>
-  <header>
+  <header class="o-content-section">
     <div class="container">
       <div class="row">
       <div class="col">
@@ -29,10 +30,37 @@
     </div>
   </div>
   </header>
+  
   <div class="container">
     <div class="row">
       <div class="col-md-8 offset-md-2">
-        <div class="intro">
+        <form class="o-content-section">
+          <ul class="form-list u-list-bare">
+            <li class="form-list__item">
+              <label for="form-name">Name</label><input name="name" id="form-name" />
+            </li>
+            <li class="form-list__item">
+              <label for="form-city">City</label><input name="city" id="form-city" />
+            </li>
+            <li class="form-list__item">
+              <label for="form-remarks">Remarks</label>
+              <textarea name="remarks" id="form-remarks"></textarea>
+            </li>
+            <li class="form-list__item">
+              <button style="margin-top: 2em;">I'm a button</button>
+            </li>
+            
+          </ul>
+        </form>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 offset-md-2">
+        <div class="intro o-content-section">
           <h1>Yay I've got a website</h1>
           <p >Lorem ipsum dolor sit amet consectetur adipisicing elit. Reiciendis alias tempora sed voluptas maiores sunt quisquam, cum, culpa porro veritatis repellat quibusdam perferendis, eaque explicabo illo magni autem? Necessitatibus, ullam?</p>
         </div>
@@ -41,7 +69,7 @@
 
     <div class="row">
       <div class="col-md-10">
-        <div class="media-box">
+        <div class="media-box o-content-section">
           <div class="media-box__media">
             <img src="https://placekitten.com/400/300" class="media-box__image">
           </div>
@@ -58,7 +86,7 @@
 
     <div class="row">
       <div class="col-md-10 offset-md-2">
-        <div class="media-box">
+        <div class="media-box o-content-section">
           <div class="media-box__media media-box__media--right">
             <img src="https://placekitten.com/440/330" class="media-box__image">
           </div>
@@ -74,7 +102,7 @@
 
     <div class="row">
       <div class="col-md-10">
-        <div class="media-box">
+        <div class="media-box o-content-section">
           <div class="media-box__media">
             <img src="https://placekitten.com/400/300" class="media-box__image">
           </div>

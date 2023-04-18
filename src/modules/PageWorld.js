@@ -316,10 +316,10 @@ class PageWorld {
     // then inside those, still create spans per line
 
     // selector that define elements to be treated as a solid block
-    const blockLevelSelector = '.block-level, img, video, button';
+    const blockLevelSelector = '.block-level, img, video, button, input, textarea';
     // define selector for elms where we don't want to dig down further
     // we'll only create spans per line there
-    const textLevelSelector = 'h1, h2, h3, h4, h5, h6, p';
+    const textLevelSelector = 'h1, h2, h3, h4, h5, h6, p, label';
     const deepestLevelSelectors = ['.block-level', 'p'];
     const oldSelectors = ['button', '.o-card--balloon', 'a', 'th', 'td', 'input', 'label', 'img'];
 
