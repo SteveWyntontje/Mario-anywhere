@@ -68,6 +68,7 @@ class PageWorld {
         return;
       }
       this.wrapElmTextNodesWithSpans(elm, spans);
+      this.addBodyAttr(elm);
     });
     return spans;
   }
@@ -227,16 +228,11 @@ class PageWorld {
   // or has an ancestor with a body object
   elmHasBodyObj(elm) {
     const selector = `[${this.bodyObjAttr}]`;
-    if (elm.hasAttribute(this.bodyObjAttr)) {
-      return true;
-    } else {
-      const closest = elm.closest(selector);
-      if (closest) {
-        console.log(closest);
-        return true;
-      }
-    }
-    // return Boolean(elm.hasAttribute(this.bodyObjAttr) || elm.closest(selector));
+    return Boolean(elm.hasAttribute(this.bodyObjAttr) || elm.closest(selector));
+  }
+
+  addBodyAttr(elm) {
+    elm.setAttribute(this.bodyObjAttr, '');
   }
 
   addTextLevelBodies(bodies, selectors) {
@@ -272,7 +268,7 @@ class PageWorld {
         return;
       }
       bodies.push(this.createBodyForElm(elm));
-      elm.setAttribute(this.bodyObjAttr, '');
+      this.addBodyAttr(elm);
     });
   }
 
@@ -297,17 +293,34 @@ class PageWorld {
         } else {
           bodies.push(this.createBodyForElm(elm));
         }
-        elm.setAttribute(this.bodyObjAttr, '');
+        this.addBodyAttr(elm);
       });
     });
   }
 
-  getDeepestChild(elmOrElms) {
-
+  getDeepestElements(elm, deepestElements) {
+    const children = Array.from(elm.children);
+    children.forEach(child => {
+      if (this.elmHasBodyObj(child)) {
+        return;
+      } else if (child.children.length) {
+        // it still has children
+        this.getDeepestElements(child, deepestElements);
+      } else {
+        // it the deepest child;
+        deepestElements.push(child);
+      }
+    });
   }
 
   addBodiesFromDocumentTree(bodies) {
-    // const 
+    const elm = document.body;
+    const deepestElements = [];
+    this.getDeepestElements(elm, deepestElements);
+    console.log(deepestElements);
+    deepestElements.forEach(el => {
+      el.style.background = 'rgba(0, 0, 255, 0.3)';
+    })
   }
 
   createBodiesForHtmlElements() {
@@ -321,15 +334,13 @@ class PageWorld {
     // we'll only create spans per line there
     const textLevelSelector = 'h1, h2, h3, h4, h5, h6, p, label';
     const deepestLevelSelectors = ['.block-level', 'p'];
-    const oldSelectors = ['button', '.o-card--balloon', 'a', 'th', 'td', 'input', 'label', 'img'];
+    // const oldSelectors = ['button', '.o-card--balloon', 'a', 'th', 'td', 'input', 'label', 'img'];
 
-    const elementLevelSelectors = deepestLevelSelectors.concat(oldSelectors);
     const bodies = [];
     this.typeCorrectionsMaps = new TypeCorrectionsMaps();
 
     this.addBlockLevelBodies(bodies, blockLevelSelector);
     this.addTextLevelBodies(bodies, textLevelSelector);
-    // this.addElementLevelBodies(bodies, elementLevelSelectors);
     this.addBodiesFromDocumentTree(bodies);
 
     return bodies;
@@ -402,7 +413,7 @@ class PageWorld {
         } else {
           bodies.push(this.createBodyForElm(elm));
         }
-        elm.setAttribute(this.bodyObjAttr, '');
+        this.addBodyAttr(elm);
       });
     });
   }
