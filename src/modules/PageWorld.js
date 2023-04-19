@@ -42,23 +42,59 @@ class PageWorld {
   }
 
   // recursively call child nodes of elm, wrap them with span; return spans array
-  wrapElmTextNodesWithSpans(elm, elmSpans) {
+  wrapElmTextNodesWithSpans(elm, elmSpans, logit) {
     elm.childNodes.forEach((childNode) => {
+      // if (logit) {
+      //   console.log('childNode:', childNode);
+      // }
       const nodeType = childNode.nodeType;
-      if (nodeType === 3) {
-        // it's a text node
+      if (nodeType === Node.TEXT_NODE) {
+        const hasOnlyWhiteSpace = Boolean(!childNode.nodeValue.match(/\S/));
+        if (logit) {
+          console.log('elm:', elm);
+          console.log(`text childNode.nodeValue:"${childNode.nodeValue}"`);
+          console.log('typeof childNode.nodeValue:', typeof childNode.nodeValue);
+          console.log('hasOnlyWhiteSpace:', hasOnlyWhiteSpace);
+          // // console.log('trimmedValue:', trimmedValue);
+          // if (!trimmedValue) {
+          //   console.log('no trimmed value');
+          //   return;
+          // }
+        }
+        if (hasOnlyWhiteSpace) {
+          return;
+        }
+        
         const span = this.wrapTextNodeWithSpan(childNode);
         elmSpans.push(span);
-      } else if (nodeType === 1) {
-        // element node
+      } else if (nodeType === Node.ELEMENT_NODE) {
+        if (logit) {
+          console.log('ELEMENT!!!');
+        }
+        if (this.elmHasBodyObj(childNode)) {
+          if (logit) {
+            console.log('elm has body obj:', elm);
+          }
+          return;
+        }
+        if (logit) {
+          console.log('has no body obj:', elm);
+          console.log('text elementNode.type:', childNode.nodeType);
+          console.log('text elementNode.value:', childNode.nodeValue);
+          console.log('text elementNode:', childNode);
+        }
         this.wrapElmTextNodesWithSpans(childNode, elmSpans);
+      } else {
+        if (logit) {
+          console.log('childNode.nodeType:', childNode.nodeType);
+        }
       }
     });
   }
-
+ 
   // replace all the text nodes in elements matched by selector by span with text
   // and return all the spans
-  createSpansForTextNodes(selector) {
+  createSpansForTextNodes(selector, logit) {
     const spans = [];
     const elms = document.querySelectorAll(selector);
     elms.forEach((elm) => {
@@ -67,7 +103,7 @@ class PageWorld {
       if (this.elmHasBodyObj(elm)) {
         return;
       }
-      this.wrapElmTextNodesWithSpans(elm, spans);
+      this.wrapElmTextNodesWithSpans(elm, spans, logit);
       this.addBodyAttr(elm);
     });
     return spans;
@@ -228,7 +264,7 @@ class PageWorld {
   // or has an ancestor with a body object
   elmHasBodyObj(elm) {
     const selector = `[${this.bodyObjAttr}]`;
-    return Boolean(elm.hasAttribute(this.bodyObjAttr) || elm.closest(selector));
+    return Boolean(elm.hasAttribute(this.bodyObjAttr) || elm.closest(selector) || elm.hasAttribute('data-mario-ignore'));
   }
 
   addBodyAttr(elm) {
@@ -272,40 +308,15 @@ class PageWorld {
     });
   }
 
-  addDeepestLevelBodies(bodies, selectors) {
-    selectors.forEach((selector) => {
-      // console.log('selector:', selector);
-      const elms = document.querySelectorAll(selector);
-      elms.forEach((elm) => {
-        // when elm is matched by multiple selectors,
-        // make sure we only create bodies for it once
-        if (this.elmHasBodyObj(elm)) {
-          return;
-        }
-        const childNodes = elm.childNodes;
-        if (childNodes.length === 1 && childNodes[0].nodeType === 3) {
-          // We don't want to use text-only block-level elements, like h1
-          // their bounding box is wider than the actual text.
-          // Could also be that we have a flex-item that is too high
-          // Insert span so we have inline element to bounce off
-          const span = this.wrapTextNodeWithSpan(childNodes[0]);
-          bodies.push(this.createBodyForElm(span));
-        } else {
-          bodies.push(this.createBodyForElm(elm));
-        }
-        this.addBodyAttr(elm);
-      });
-    });
-  }
-
-  getDeepestElements(elm, deepestElements) {
+  // get the deepest elements that don't have a body object yet
+  getDeepestElementsWithoutBodyOld(elm, deepestElements) {
     const children = Array.from(elm.children);
     children.forEach(child => {
       if (this.elmHasBodyObj(child)) {
         return;
       } else if (child.children.length) {
         // it still has children
-        this.getDeepestElements(child, deepestElements);
+        this.getDeepestElementsWithoutBodyOld(child, deepestElements);
       } else {
         // it the deepest child;
         deepestElements.push(child);
@@ -313,27 +324,51 @@ class PageWorld {
     });
   }
 
+  // get the deepest elements that don't have a body object yet
+  // getTextNodesWithoutBody(elm, deepestElements) {
+  //   const nodes = elm.childNodes;
+  //   nodes.forEach(node => {
+  //     if (node.nodeType === Node.ELEMENT_NODE) {
+  //       if (this.elmHasBodyObj(node)) {
+  //         return;
+  //       } else if (node.childNodes.length) {
+
+  //       }
+  //     } else if (node.nodeType === Node.TEXT_NODE) {
+
+  //     }
+
+  //     if (this.elmHasBodyObj(child)) {
+  //       return;
+  //     } else if (child.children.length) {
+  //       // it still has children
+  //       this.getDeepestElementsWithoutBody(child, deepestElements);
+  //     } else {
+  //       // it the deepest child;
+  //       deepestElements.push(child);
+  //     }
+  //   });
+  // }
+
   addBodiesFromDocumentTree(bodies) {
-    const elm = document.body;
-    const deepestElements = [];
-    this.getDeepestElements(elm, deepestElements);
-    console.log(deepestElements);
-    deepestElements.forEach(el => {
-      el.style.background = 'rgba(0, 0, 255, 0.3)';
-    })
+    // const elm = document.body;
+    // const textNodes = [];
+    // this.getTextNodesWithoutBody(elm, textNodes);
+    // console.log(textNodes);
+    // textNodes.forEach(el => {
+    //   // wrap all nodes in span
+    //   // el.style.background = 'rgba(0, 0, 255, 0.3)';
+    // });
+    const spans = this.createSpansForTextNodes('body', true);
+    console.log('spans:', spans);
   }
 
   createBodiesForHtmlElements() {
-    // rename to endLevelSelectors - don't try to find nodes below this level?
-    // e.g. for p, hn, button?
-    // then inside those, still create spans per line
-
     // selector that define elements to be treated as a solid block
     const blockLevelSelector = '.block-level, img, video, button, input, textarea';
     // define selector for elms where we don't want to dig down further
     // we'll only create spans per line there
     const textLevelSelector = 'h1, h2, h3, h4, h5, h6, p, label';
-    const deepestLevelSelectors = ['.block-level', 'p'];
     // const oldSelectors = ['button', '.o-card--balloon', 'a', 'th', 'td', 'input', 'label', 'img'];
 
     const bodies = [];
@@ -349,6 +384,16 @@ class PageWorld {
   // ######################################################################
   // ######################################################################
   // ######################################################################
+
+  addBodiesFromDocumentTree0(bodies) {
+    const elm = document.body;
+    const deepestElements = [];
+    this.getDeepestElementsWithoutBody(elm, deepestElements);
+    console.log(deepestElements);
+    deepestElements.forEach(el => {
+      el.style.background = 'rgba(0, 0, 255, 0.3)';
+    });
+  }
 
   // replace all the text nodes in elements matched by selector by span with text
   // and return all the spans

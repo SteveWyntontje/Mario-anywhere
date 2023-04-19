@@ -1,9 +1,4 @@
-/* eslint-disable */
-// import { PlatformRevealer } from './modules/PlatformRevealer.js';
-// import { PageWorld } from './modules/PageWorld.js';
-// import { Player } from './modules/Player.js';
-// import { SpriteManager } from './modules/SpriteManager.js';
-// import { PageScrollCoupling } from './modules/PageScrollCoupling.js';
+(() => {
 
 let Composite;
 let Engine;
@@ -78,6 +73,7 @@ const addCanvasContainer = () => {
   canvasH = document.body.offsetHeight;
   canvasContainer = document.createElement('div');
   canvasContainer.id = containerId;
+  canvasContainer.setAttribute('data-mario-ignore', '');
   const styles = {
     position: 'absolute',
     top: 0,
@@ -154,3 +150,5 @@ const init = () => {
 
 console.clear();
 init();
+
+})();

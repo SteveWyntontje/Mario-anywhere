@@ -76,7 +76,7 @@ class PageWorld {
       }
     });
   }
-
+ 
   // replace all the text nodes in elements matched by selector by span with text
   // and return all the spans
   createSpansForTextNodes(selector) {
@@ -249,7 +249,7 @@ class PageWorld {
   // or has an ancestor with a body object
   elmHasBodyObj(elm) {
     const selector = `[${this.bodyObjAttr}]`;
-    return Boolean(elm.hasAttribute(this.bodyObjAttr) || elm.closest(selector));
+    return Boolean(elm.hasAttribute(this.bodyObjAttr) || elm.closest(selector) || elm.hasAttribute('data-mario-ignore'));
   }
 
   addBodyAttr(elm) {
@@ -293,40 +293,15 @@ class PageWorld {
     });
   }
 
-  addDeepestLevelBodies(bodies, selectors) {
-    selectors.forEach((selector) => {
-      // console.log('selector:', selector);
-      const elms = document.querySelectorAll(selector);
-      elms.forEach((elm) => {
-        // when elm is matched by multiple selectors,
-        // make sure we only create bodies for it once
-        if (this.elmHasBodyObj(elm)) {
-          return;
-        }
-        const childNodes = elm.childNodes;
-        if (childNodes.length === 1 && childNodes[0].nodeType === 3) {
-          // We don't want to use text-only block-level elements, like h1
-          // their bounding box is wider than the actual text.
-          // Could also be that we have a flex-item that is too high
-          // Insert span so we have inline element to bounce off
-          const span = this.wrapTextNodeWithSpan(childNodes[0]);
-          bodies.push(this.createBodyForElm(span));
-        } else {
-          bodies.push(this.createBodyForElm(elm));
-        }
-        this.addBodyAttr(elm);
-      });
-    });
-  }
-
-  getDeepestElements(elm, deepestElements) {
+  // get the deepest elements that don't have a body object yet
+  getDeepestElementsWithoutBody(elm, deepestElements) {
     const children = Array.from(elm.children);
     children.forEach(child => {
       if (this.elmHasBodyObj(child)) {
         return;
       } else if (child.children.length) {
         // it still has children
-        this.getDeepestElements(child, deepestElements);
+        this.getDeepestElementsWithoutBody(child, deepestElements);
       } else {
         // it the deepest child;
         deepestElements.push(child);
@@ -337,24 +312,20 @@ class PageWorld {
   addBodiesFromDocumentTree(bodies) {
     const elm = document.body;
     const deepestElements = [];
-    this.getDeepestElements(elm, deepestElements);
+    this.getDeepestElementsWithoutBody(elm, deepestElements);
     console.log(deepestElements);
     deepestElements.forEach(el => {
-      el.style.background = 'rgba(0, 0, 255, 0.3)';
-    })
+      // el.style.background = 'rgba(0, 0, 255, 0.3)';
+
+    });
   }
 
   createBodiesForHtmlElements() {
-    // rename to endLevelSelectors - don't try to find nodes below this level?
-    // e.g. for p, hn, button?
-    // then inside those, still create spans per line
-
     // selector that define elements to be treated as a solid block
     const blockLevelSelector = '.block-level, img, video, button, input, textarea';
     // define selector for elms where we don't want to dig down further
     // we'll only create spans per line there
     const textLevelSelector = 'h1, h2, h3, h4, h5, h6, p, label';
-    const deepestLevelSelectors = ['.block-level', 'p'];
     // const oldSelectors = ['button', '.o-card--balloon', 'a', 'th', 'td', 'input', 'label', 'img'];
 
     const bodies = [];
@@ -939,12 +910,7 @@ class TypeCorrectionsMaps {
     return typeCorrectionsMaps;
   }
 }
-/* eslint-disable */
-// import { PlatformRevealer } from './modules/PlatformRevealer.js';
-// import { PageWorld } from './modules/PageWorld.js';
-// import { Player } from './modules/Player.js';
-// import { SpriteManager } from './modules/SpriteManager.js';
-// import { PageScrollCoupling } from './modules/PageScrollCoupling.js';
+(() => {
 
 let Composite;
 let Engine;
@@ -1019,6 +985,7 @@ const addCanvasContainer = () => {
   canvasH = document.body.offsetHeight;
   canvasContainer = document.createElement('div');
   canvasContainer.id = containerId;
+  canvasContainer.setAttribute('data-mario-ignore', '');
   const styles = {
     position: 'absolute',
     top: 0,
@@ -1095,3 +1062,5 @@ const init = () => {
 
 console.clear();
 init();
+
+})();
