@@ -2,7 +2,7 @@ class PageWorld {
   shapeOpacity = 0;
   elmsUsedForBodies = [];
   typeCorrectionsMaps = null;
-  bodyObjAttr = 'data-ee-has-body-obj';
+  bodyObjAttr = 'data-mario-has-body-obj';
 
   constructor(options) {
     this.Matter = options.Matter;
@@ -11,7 +11,6 @@ class PageWorld {
   }
 
   createWallsAndGround() {
-    const t = 60; // thickness
     const options = {
       isStatic: true,
       render: {
@@ -21,15 +20,33 @@ class PageWorld {
     const groundOptions = {
       ...options,
       render: {
-        fillStyle: 'black',
+        fillStyle: '#c84c0c',
         opacity: 1,
       },
     };
-    const ground = this.Matter.Bodies.rectangle(this.canvasW / 2, this.canvasH + 25, this.canvasW, t, groundOptions);
-    const ceiling = this.Matter.Bodies.rectangle(this.canvasW / 2, 0 - t / 2, this.canvasW, t, options);
-    const leftWall = this.Matter.Bodies.rectangle(0 - t / 2, this.canvasH / 2, t, this.canvasH, options);
-    const rightWall = this.Matter.Bodies.rectangle(this.canvasW + t / 2, this.canvasH / 2, t, this.canvasH, options);
+    
+    const t = 60; // thickness
+    const playerH = 32; // size of player sprite
+    // canvasH is exact height of document, but we want to add the height of player
+    // so player can just jump out of window top
+    const horCenter = this.canvasW / 2;
+    const visibleBottomHeight = 10;
+    const ceilingTop = 0 - playerH - t;
+    const ceilingCenterV = ceilingTop + 0.5 * t;
+    const groundTop = this.canvasH - visibleBottomHeight;
+    const groundCenterV = groundTop + 0.5 * t;
+    const wallH = Math.abs(ceilingTop) + groundTop + t;
+    const wallCenterV = ceilingTop + 0.5 * wallH;
+    const leftWallCenterH = 0 - 0.5 * t;
+    const rightWallCenterH = this.canvasW + 0.5 * t;
 
+
+    // ceiling don't make it possible to jump completely out of window
+    const ceiling = this.Matter.Bodies.rectangle(horCenter, ceilingCenterV, this.canvasW, t, options);
+    const ground = this.Matter.Bodies.rectangle(horCenter, groundCenterV, this.canvasW, t, groundOptions);
+    const leftWall = this.Matter.Bodies.rectangle(leftWallCenterH, wallCenterV, t, wallH, options);
+    const rightWall = this.Matter.Bodies.rectangle(rightWallCenterH, wallCenterV, t, wallH, options);
+    
     return [ground, ceiling, leftWall, rightWall];
   }
 
@@ -86,7 +103,7 @@ class PageWorld {
     const words = text.split(' ');
     const spans = words.map(word => {
       const span = document.createElement('span');
-      span.setAttribute('data-ee-char-group', 'regular');
+      span.setAttribute('data-mario-char-group', 'regular');
       span.textContent = word + ' ';
       return span;
     });
@@ -96,7 +113,7 @@ class PageWorld {
 
   createLineSpan(currLineText) {
     const span = document.createElement('span');
-    span.setAttribute('data-ee-line-group', '');
+    span.setAttribute('data-mario-line-group', '');
     span.textContent = currLineText;
     return span;
   }
@@ -151,7 +168,7 @@ class PageWorld {
         charGroup = 'desc';
       }
       const span = document.createElement('span');
-      span.setAttribute('data-ee-char-group', charGroup);
+      span.setAttribute('data-mario-char-group', charGroup);
       span.textContent = text;
       return span;
     });
@@ -165,7 +182,7 @@ class PageWorld {
   getTypeCorrections(elm, styles) {
     // use corrections map with correction factors per font, per character group
     // char group can be asc (ascender), desc (descender), regular
-    const charGroup = elm.getAttribute('data-ee-char-group') || 'regular';
+    const charGroup = elm.getAttribute('data-mario-char-group') || 'regular';
 
     // find corrections map, based on font
     const firstFont = styles['font-family']?.split(',')[0] || '';
@@ -233,7 +250,7 @@ class PageWorld {
   // or has an ancestor with a body object
   elmHasBodyObj(elm) {
     const selector = `[${this.bodyObjAttr}]`;
-    return Boolean(elm.hasAttribute(this.bodyObjAttr) || elm.closest(selector) || elm.hasAttribute('data-mario-ignore'));
+    return Boolean(elm.hasAttribute(this.bodyObjAttr) || elm.closest(selector) || elm.hasAttribute('data-mario-ignore') || elm.closest('[data-mario-ignore]'));
   }
 
   addBodyAttr(elm) {
@@ -295,7 +312,7 @@ class PageWorld {
 
   createBodiesForHtmlElements() {
     // selector that define elements to be treated as a solid block
-    const blockLevelSelector = '.block-level, img, video, button, input, textarea';
+    const blockLevelSelector = '.block-level, audio, button, canvas, embed, iframe, image, img, input, object, picture, progress, select, svg, textarea, video';
     // define selector for elms where we don't want to dig down further
     // we'll only create spans per line there
     // const textLevelSelector = 'h1, h2, h3, h4, h5, h6, p, label';

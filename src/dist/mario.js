@@ -23,7 +23,7 @@ class PageWorld {
   shapeOpacity = 0;
   elmsUsedForBodies = [];
   typeCorrectionsMaps = null;
-  bodyObjAttr = 'data-ee-has-body-obj';
+  bodyObjAttr = 'data-mario-has-body-obj';
 
   constructor(options) {
     this.Matter = options.Matter;
@@ -32,7 +32,6 @@ class PageWorld {
   }
 
   createWallsAndGround() {
-    const t = 60; // thickness
     const options = {
       isStatic: true,
       render: {
@@ -42,15 +41,33 @@ class PageWorld {
     const groundOptions = {
       ...options,
       render: {
-        fillStyle: 'black',
+        fillStyle: '#c84c0c',
         opacity: 1,
       },
     };
-    const ground = this.Matter.Bodies.rectangle(this.canvasW / 2, this.canvasH + 25, this.canvasW, t, groundOptions);
-    const ceiling = this.Matter.Bodies.rectangle(this.canvasW / 2, 0 - t / 2, this.canvasW, t, options);
-    const leftWall = this.Matter.Bodies.rectangle(0 - t / 2, this.canvasH / 2, t, this.canvasH, options);
-    const rightWall = this.Matter.Bodies.rectangle(this.canvasW + t / 2, this.canvasH / 2, t, this.canvasH, options);
+    
+    const t = 60; // thickness
+    const playerH = 32; // size of player sprite
+    // canvasH is exact height of document, but we want to add the height of player
+    // so player can just jump out of window top
+    const horCenter = this.canvasW / 2;
+    const visibleBottomHeight = 10;
+    const ceilingTop = 0 - playerH - t;
+    const ceilingCenterV = ceilingTop + 0.5 * t;
+    const groundTop = this.canvasH - visibleBottomHeight;
+    const groundCenterV = groundTop + 0.5 * t;
+    const wallH = Math.abs(ceilingTop) + groundTop + t;
+    const wallCenterV = ceilingTop + 0.5 * wallH;
+    const leftWallCenterH = 0 - 0.5 * t;
+    const rightWallCenterH = this.canvasW + 0.5 * t;
 
+
+    // ceiling don't make it possible to jump completely out of window
+    const ceiling = this.Matter.Bodies.rectangle(horCenter, ceilingCenterV, this.canvasW, t, options);
+    const ground = this.Matter.Bodies.rectangle(horCenter, groundCenterV, this.canvasW, t, groundOptions);
+    const leftWall = this.Matter.Bodies.rectangle(leftWallCenterH, wallCenterV, t, wallH, options);
+    const rightWall = this.Matter.Bodies.rectangle(rightWallCenterH, wallCenterV, t, wallH, options);
+    
     return [ground, ceiling, leftWall, rightWall];
   }
 
@@ -66,12 +83,17 @@ class PageWorld {
   wrapElmTextNodesWithSpans(elm, elmSpans) {
     elm.childNodes.forEach((childNode) => {
       const nodeType = childNode.nodeType;
-      if (nodeType === 3) {
-        // it's a text node
+      if (nodeType === Node.TEXT_NODE) {
+        const hasOnlyWhiteSpace = Boolean(!childNode.nodeValue.match(/\S/));
+        if (hasOnlyWhiteSpace) {
+          return;
+        }
         const span = this.wrapTextNodeWithSpan(childNode);
         elmSpans.push(span);
-      } else if (nodeType === 1) {
-        // element node
+      } else if (nodeType === Node.ELEMENT_NODE) {
+        if (this.elmHasBodyObj(childNode)) {
+          return;
+        }
         this.wrapElmTextNodesWithSpans(childNode, elmSpans);
       }
     });
@@ -102,7 +124,7 @@ class PageWorld {
     const words = text.split(' ');
     const spans = words.map(word => {
       const span = document.createElement('span');
-      span.setAttribute('data-ee-char-group', 'regular');
+      span.setAttribute('data-mario-char-group', 'regular');
       span.textContent = word + ' ';
       return span;
     });
@@ -112,7 +134,7 @@ class PageWorld {
 
   createLineSpan(currLineText) {
     const span = document.createElement('span');
-    span.setAttribute('data-ee-line-group', '');
+    span.setAttribute('data-mario-line-group', '');
     span.textContent = currLineText;
     return span;
   }
@@ -167,7 +189,7 @@ class PageWorld {
         charGroup = 'desc';
       }
       const span = document.createElement('span');
-      span.setAttribute('data-ee-char-group', charGroup);
+      span.setAttribute('data-mario-char-group', charGroup);
       span.textContent = text;
       return span;
     });
@@ -181,7 +203,7 @@ class PageWorld {
   getTypeCorrections(elm, styles) {
     // use corrections map with correction factors per font, per character group
     // char group can be asc (ascender), desc (descender), regular
-    const charGroup = elm.getAttribute('data-ee-char-group') || 'regular';
+    const charGroup = elm.getAttribute('data-mario-char-group') || 'regular';
 
     // find corrections map, based on font
     const firstFont = styles['font-family']?.split(',')[0] || '';
@@ -249,7 +271,7 @@ class PageWorld {
   // or has an ancestor with a body object
   elmHasBodyObj(elm) {
     const selector = `[${this.bodyObjAttr}]`;
-    return Boolean(elm.hasAttribute(this.bodyObjAttr) || elm.closest(selector) || elm.hasAttribute('data-mario-ignore'));
+    return Boolean(elm.hasAttribute(this.bodyObjAttr) || elm.closest(selector) || elm.hasAttribute('data-mario-ignore') || elm.closest('[data-mario-ignore]'));
   }
 
   addBodyAttr(elm) {
@@ -294,14 +316,14 @@ class PageWorld {
   }
 
   // get the deepest elements that don't have a body object yet
-  getDeepestElementsWithoutBody(elm, deepestElements) {
+  getDeepestElementsWithoutBodyOld(elm, deepestElements) {
     const children = Array.from(elm.children);
     children.forEach(child => {
       if (this.elmHasBodyObj(child)) {
         return;
       } else if (child.children.length) {
         // it still has children
-        this.getDeepestElementsWithoutBody(child, deepestElements);
+        this.getDeepestElementsWithoutBodyOld(child, deepestElements);
       } else {
         // it the deepest child;
         deepestElements.push(child);
@@ -309,120 +331,19 @@ class PageWorld {
     });
   }
 
-  addBodiesFromDocumentTree(bodies) {
-    const elm = document.body;
-    const deepestElements = [];
-    this.getDeepestElementsWithoutBody(elm, deepestElements);
-    console.log(deepestElements);
-    deepestElements.forEach(el => {
-      // el.style.background = 'rgba(0, 0, 255, 0.3)';
-
-    });
-  }
-
   createBodiesForHtmlElements() {
     // selector that define elements to be treated as a solid block
-    const blockLevelSelector = '.block-level, img, video, button, input, textarea';
+    const blockLevelSelector = '.block-level, audio, button, canvas, embed, iframe, image, img, input, object, picture, progress, select, svg, textarea, video';
     // define selector for elms where we don't want to dig down further
     // we'll only create spans per line there
-    const textLevelSelector = 'h1, h2, h3, h4, h5, h6, p, label';
-    // const oldSelectors = ['button', '.o-card--balloon', 'a', 'th', 'td', 'input', 'label', 'img'];
-
+    // const textLevelSelector = 'h1, h2, h3, h4, h5, h6, p, label';
     const bodies = [];
     this.typeCorrectionsMaps = new TypeCorrectionsMaps();
-
     this.addBlockLevelBodies(bodies, blockLevelSelector);
-    this.addTextLevelBodies(bodies, textLevelSelector);
-    this.addBodiesFromDocumentTree(bodies);
-
+    this.addTextLevelBodies(bodies, 'body');
     return bodies;
   }
 
-  // ######################################################################
-  // ######################################################################
-  // ######################################################################
-
-  // replace all the text nodes in elements matched by selector by span with text
-  // and return all the spans
-  createSpansForTextNodes0(selectors) {
-    const spans = [];
-    selectors.forEach((selector) => {
-      const elms = document.querySelectorAll(selector);
-      elms.forEach((elm) => {
-        // when elm is matched by multiple selectors,
-        // make sure we only create bodies for it once
-        if (this.elmsUsedForBodies.includes(elm)) {
-          return;
-        }
-        this.wrapElmTextNodesWithSpans(elm, spans);
-      });
-    });
-    return spans;
-  }
-
-  addTextLevelBodies0(bodies, selectors) {
-    const textLevelSpans = this.createSpansForTextNodes0(selectors);
-    textLevelSpans.forEach((span) => {
-      // check of the font-size is big enough to want to take height of
-      // capitals, ascenders and descenders into account
-      const fontSize = parseFloat(getComputedStyle(span).fontSize);
-      const fontSizeThreshold = 24; // above this, adjust heights
-      if (fontSize >= fontSizeThreshold) {
-        const characterGroupSpans = this.createCharacterGroupSpans(span);
-        characterGroupSpans.forEach((charGroupSpan) => {
-          bodies.push(this.createBodyForElm(charGroupSpan));
-        });
-      } else {
-        const lineSpans = this.createLineSpans(span);
-        lineSpans.forEach((lineSpan) => {
-          bodies.push(this.createBodyForElm(lineSpan));
-        });
-      }
-    });
-    return textLevelSpans;
-  }
-
-  addElementLevelBodies0(bodies, selectors) {
-    // possible optimization: handle element-level selectors first
-    // and then check if text-level selectors don't fall within element-level
-    selectors.forEach((selector) => {
-      // console.log('selector:', selector);
-      const elms = document.querySelectorAll(selector);
-      elms.forEach((elm) => {
-        // when elm is matched by multiple selectors,
-        // make sure we only create bodies for it once
-        if (this.elmHasBodyObj(elm)) {
-          return;
-        }
-        const childNodes = elm.childNodes;
-        if (childNodes.length === 1 && childNodes[0].nodeType === 3) {
-          // We don't want to use text-only block-level elements, like h1
-          // their bounding box is wider than the actual text.
-          // Could also be that we have a flex-item that is too high
-          // Insert span so we have inline element to bounce off
-          const span = this.wrapTextNodeWithSpan(childNodes[0]);
-          bodies.push(this.createBodyForElm(span));
-        } else {
-          bodies.push(this.createBodyForElm(elm));
-        }
-        this.addBodyAttr(elm);
-      });
-    });
-  }
-
-  createBodiesForHtmlElements0() {
-    const selectors = {
-      textLevel: ['h1', 'h2', 'h3', 'h4', 'p'],
-      elementLevel: ['button', '.o-card--balloon', 'a', 'th', 'td', 'input', 'label', 'img', '.block-level'],
-    };
-    const bodies = [];
-    this.typeCorrectionsMaps = new TypeCorrectionsMaps();
-
-    this.addTextLevelBodies0(bodies, selectors.textLevel);
-    this.addElementLevelBodies0(bodies, selectors.elementLevel);
-
-    return bodies;
-  }
 }
 
 class PlatformRevealer {
