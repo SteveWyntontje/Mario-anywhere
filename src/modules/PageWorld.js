@@ -42,59 +42,28 @@ class PageWorld {
   }
 
   // recursively call child nodes of elm, wrap them with span; return spans array
-  wrapElmTextNodesWithSpans(elm, elmSpans, logit) {
+  wrapElmTextNodesWithSpans(elm, elmSpans) {
     elm.childNodes.forEach((childNode) => {
-      // if (logit) {
-      //   console.log('childNode:', childNode);
-      // }
       const nodeType = childNode.nodeType;
       if (nodeType === Node.TEXT_NODE) {
         const hasOnlyWhiteSpace = Boolean(!childNode.nodeValue.match(/\S/));
-        if (logit) {
-          console.log('elm:', elm);
-          console.log(`text childNode.nodeValue:"${childNode.nodeValue}"`);
-          console.log('typeof childNode.nodeValue:', typeof childNode.nodeValue);
-          console.log('hasOnlyWhiteSpace:', hasOnlyWhiteSpace);
-          // // console.log('trimmedValue:', trimmedValue);
-          // if (!trimmedValue) {
-          //   console.log('no trimmed value');
-          //   return;
-          // }
-        }
         if (hasOnlyWhiteSpace) {
           return;
         }
-        
         const span = this.wrapTextNodeWithSpan(childNode);
         elmSpans.push(span);
       } else if (nodeType === Node.ELEMENT_NODE) {
-        if (logit) {
-          console.log('ELEMENT!!!');
-        }
         if (this.elmHasBodyObj(childNode)) {
-          if (logit) {
-            console.log('elm has body obj:', elm);
-          }
           return;
         }
-        if (logit) {
-          console.log('has no body obj:', elm);
-          console.log('text elementNode.type:', childNode.nodeType);
-          console.log('text elementNode.value:', childNode.nodeValue);
-          console.log('text elementNode:', childNode);
-        }
         this.wrapElmTextNodesWithSpans(childNode, elmSpans);
-      } else {
-        if (logit) {
-          console.log('childNode.nodeType:', childNode.nodeType);
-        }
       }
     });
   }
  
   // replace all the text nodes in elements matched by selector by span with text
   // and return all the spans
-  createSpansForTextNodes(selector, logit) {
+  createSpansForTextNodes(selector) {
     const spans = [];
     const elms = document.querySelectorAll(selector);
     elms.forEach((elm) => {
@@ -103,7 +72,7 @@ class PageWorld {
       if (this.elmHasBodyObj(elm)) {
         return;
       }
-      this.wrapElmTextNodesWithSpans(elm, spans, logit);
+      this.wrapElmTextNodesWithSpans(elm, spans);
       this.addBodyAttr(elm);
     });
     return spans;
@@ -324,156 +293,17 @@ class PageWorld {
     });
   }
 
-  // get the deepest elements that don't have a body object yet
-  // getTextNodesWithoutBody(elm, deepestElements) {
-  //   const nodes = elm.childNodes;
-  //   nodes.forEach(node => {
-  //     if (node.nodeType === Node.ELEMENT_NODE) {
-  //       if (this.elmHasBodyObj(node)) {
-  //         return;
-  //       } else if (node.childNodes.length) {
-
-  //       }
-  //     } else if (node.nodeType === Node.TEXT_NODE) {
-
-  //     }
-
-  //     if (this.elmHasBodyObj(child)) {
-  //       return;
-  //     } else if (child.children.length) {
-  //       // it still has children
-  //       this.getDeepestElementsWithoutBody(child, deepestElements);
-  //     } else {
-  //       // it the deepest child;
-  //       deepestElements.push(child);
-  //     }
-  //   });
-  // }
-
-  addBodiesFromDocumentTree(bodies) {
-    // const elm = document.body;
-    // const textNodes = [];
-    // this.getTextNodesWithoutBody(elm, textNodes);
-    // console.log(textNodes);
-    // textNodes.forEach(el => {
-    //   // wrap all nodes in span
-    //   // el.style.background = 'rgba(0, 0, 255, 0.3)';
-    // });
-    const spans = this.createSpansForTextNodes('body', true);
-    console.log('spans:', spans);
-  }
-
   createBodiesForHtmlElements() {
     // selector that define elements to be treated as a solid block
     const blockLevelSelector = '.block-level, img, video, button, input, textarea';
     // define selector for elms where we don't want to dig down further
     // we'll only create spans per line there
-    const textLevelSelector = 'h1, h2, h3, h4, h5, h6, p, label';
-    // const oldSelectors = ['button', '.o-card--balloon', 'a', 'th', 'td', 'input', 'label', 'img'];
-
+    // const textLevelSelector = 'h1, h2, h3, h4, h5, h6, p, label';
     const bodies = [];
     this.typeCorrectionsMaps = new TypeCorrectionsMaps();
-
     this.addBlockLevelBodies(bodies, blockLevelSelector);
-    this.addTextLevelBodies(bodies, textLevelSelector);
-    this.addBodiesFromDocumentTree(bodies);
-
+    this.addTextLevelBodies(bodies, 'body');
     return bodies;
   }
 
-  // ######################################################################
-  // ######################################################################
-  // ######################################################################
-
-  addBodiesFromDocumentTree0(bodies) {
-    const elm = document.body;
-    const deepestElements = [];
-    this.getDeepestElementsWithoutBody(elm, deepestElements);
-    console.log(deepestElements);
-    deepestElements.forEach(el => {
-      el.style.background = 'rgba(0, 0, 255, 0.3)';
-    });
-  }
-
-  // replace all the text nodes in elements matched by selector by span with text
-  // and return all the spans
-  createSpansForTextNodes0(selectors) {
-    const spans = [];
-    selectors.forEach((selector) => {
-      const elms = document.querySelectorAll(selector);
-      elms.forEach((elm) => {
-        // when elm is matched by multiple selectors,
-        // make sure we only create bodies for it once
-        if (this.elmsUsedForBodies.includes(elm)) {
-          return;
-        }
-        this.wrapElmTextNodesWithSpans(elm, spans);
-      });
-    });
-    return spans;
-  }
-
-  addTextLevelBodies0(bodies, selectors) {
-    const textLevelSpans = this.createSpansForTextNodes0(selectors);
-    textLevelSpans.forEach((span) => {
-      // check of the font-size is big enough to want to take height of
-      // capitals, ascenders and descenders into account
-      const fontSize = parseFloat(getComputedStyle(span).fontSize);
-      const fontSizeThreshold = 24; // above this, adjust heights
-      if (fontSize >= fontSizeThreshold) {
-        const characterGroupSpans = this.createCharacterGroupSpans(span);
-        characterGroupSpans.forEach((charGroupSpan) => {
-          bodies.push(this.createBodyForElm(charGroupSpan));
-        });
-      } else {
-        const lineSpans = this.createLineSpans(span);
-        lineSpans.forEach((lineSpan) => {
-          bodies.push(this.createBodyForElm(lineSpan));
-        });
-      }
-    });
-    return textLevelSpans;
-  }
-
-  addElementLevelBodies0(bodies, selectors) {
-    // possible optimization: handle element-level selectors first
-    // and then check if text-level selectors don't fall within element-level
-    selectors.forEach((selector) => {
-      // console.log('selector:', selector);
-      const elms = document.querySelectorAll(selector);
-      elms.forEach((elm) => {
-        // when elm is matched by multiple selectors,
-        // make sure we only create bodies for it once
-        if (this.elmHasBodyObj(elm)) {
-          return;
-        }
-        const childNodes = elm.childNodes;
-        if (childNodes.length === 1 && childNodes[0].nodeType === 3) {
-          // We don't want to use text-only block-level elements, like h1
-          // their bounding box is wider than the actual text.
-          // Could also be that we have a flex-item that is too high
-          // Insert span so we have inline element to bounce off
-          const span = this.wrapTextNodeWithSpan(childNodes[0]);
-          bodies.push(this.createBodyForElm(span));
-        } else {
-          bodies.push(this.createBodyForElm(elm));
-        }
-        this.addBodyAttr(elm);
-      });
-    });
-  }
-
-  createBodiesForHtmlElements0() {
-    const selectors = {
-      textLevel: ['h1', 'h2', 'h3', 'h4', 'p'],
-      elementLevel: ['button', '.o-card--balloon', 'a', 'th', 'td', 'input', 'label', 'img', '.block-level'],
-    };
-    const bodies = [];
-    this.typeCorrectionsMaps = new TypeCorrectionsMaps();
-
-    this.addTextLevelBodies0(bodies, selectors.textLevel);
-    this.addElementLevelBodies0(bodies, selectors.elementLevel);
-
-    return bodies;
-  }
 }
