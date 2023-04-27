@@ -100,9 +100,15 @@ p:last-child {
   flex: 2 2 auto;
 }
 
-.block-level {
+.media-box__content.block-level {
   background: #eee;
   border: 1px solid;
-  border-radius: 1em;
+  border-radius: 3em;
+  padding: 2em;
+}
+
+.elm--with-border {
   padding: 1em;
+  border: 1px solid;
+  border-bottom: 2px solid red;
 }

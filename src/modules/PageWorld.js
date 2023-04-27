@@ -3,6 +3,7 @@ class PageWorld {
   elmsUsedForBodies = [];
   typeCorrectionsMaps = null;
   bodyObjAttr = 'data-mario-has-body-obj';
+  fontSizeThreshold = 36;// above this size, create separate spans for capitals, ascenders and descenders
 
   constructor(options) {
     this.Matter = options.Matter;
@@ -263,8 +264,7 @@ class PageWorld {
       // check of the font-size is big enough to want to take height of
       // capitals, ascenders and descenders into account
       const fontSize = parseFloat(getComputedStyle(span).fontSize);
-      const fontSizeThreshold = 24; // above this, adjust heights
-      if (fontSize >= fontSizeThreshold) {
+      if (fontSize >= this.fontSizeThreshold) {
         const characterGroupSpans = this.createCharacterGroupSpans(span);
         characterGroupSpans.forEach((charGroupSpan) => {
           bodies.push(this.createBodyForElm(charGroupSpan));
@@ -294,20 +294,47 @@ class PageWorld {
     });
   }
 
-  // get the deepest elements that don't have a body object yet
-  getDeepestElementsWithoutBodyOld(elm, deepestElements) {
-    const children = Array.from(elm.children);
-    children.forEach(child => {
-      if (this.elmHasBodyObj(child)) {
+  getBorderWidth(styles, prop) {
+    // value looks like 1px solid rgb(...) (always in px);
+    // unless prop is 'border' and not all borders are identical, then its ''
+    const borderStr = styles[prop];
+    if (borderStr === '') {
+      return 1;// make it return anything but zero, so we'll continue to parse props
+    }
+    return parseInt(styles[prop].split(' ')[0], 10);
+  }
+
+  checkElementsForBorder(elmsWithBorder, nodes) {
+    nodes.forEach(node => {
+      // if node isn't element, or already has body obj, stop
+      if (node.nodeType !== Node.ELEMENT_NODE || this.elmHasBodyObj(node)) {
         return;
-      } else if (child.children.length) {
-        // it still has children
-        this.getDeepestElementsWithoutBodyOld(child, deepestElements);
-      } else {
-        // it the deepest child;
-        deepestElements.push(child);
       }
-    });
+      const elm = node;
+      const styles = getComputedStyle(elm);
+      let hasFullBorder = true;
+      const borderProps = ['border', 'borderTop', 'borderRight', 'borderBottom', 'borderLeft'];
+      for (const prop of borderProps) {
+        if (this.getBorderWidth(styles, prop) === 0) {
+          // side has no border, so no full border for element
+          hasFullBorder = false;
+          break;
+        };
+      }
+
+      if (hasFullBorder) {
+        elmsWithBorder.push(elm);
+      } else {
+        this.checkElementsForBorder(elmsWithBorder, elm.childNodes);
+      };
+    })
+  }
+
+  // add elements that have a border all around
+  addBorderedBodies(bodies) {
+    const elmsWithBorder = [];
+    this.checkElementsForBorder(elmsWithBorder, document.body.childNodes);
+    console.log('elmsWithBorder:', elmsWithBorder);
   }
 
   createBodiesForHtmlElements() {
@@ -318,6 +345,7 @@ class PageWorld {
     // const textLevelSelector = 'h1, h2, h3, h4, h5, h6, p, label';
     const bodies = [];
     this.typeCorrectionsMaps = new TypeCorrectionsMaps();
+    this.addBorderedBodies(bodies);
     this.addBlockLevelBodies(bodies, blockLevelSelector);
     this.addTextLevelBodies(bodies, 'body');
     return bodies;

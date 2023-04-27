@@ -34,7 +34,7 @@ class PlatformRevealer {
       border: 'none',
       color: 'white',
       opacity: 0.2,
-      zIndex: 1000000, 
+      zIndex: 9999999999999999, 
     };
     for (const s in styles) {
       btn.style[s] = styles[s];

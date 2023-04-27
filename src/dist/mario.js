@@ -24,6 +24,7 @@ class PageWorld {
   elmsUsedForBodies = [];
   typeCorrectionsMaps = null;
   bodyObjAttr = 'data-mario-has-body-obj';
+  fontSizeThreshold = 36;// above this size, create separate spans for capitals, ascenders and descenders
 
   constructor(options) {
     this.Matter = options.Matter;
@@ -284,8 +285,7 @@ class PageWorld {
       // check of the font-size is big enough to want to take height of
       // capitals, ascenders and descenders into account
       const fontSize = parseFloat(getComputedStyle(span).fontSize);
-      const fontSizeThreshold = 24; // above this, adjust heights
-      if (fontSize >= fontSizeThreshold) {
+      if (fontSize >= this.fontSizeThreshold) {
         const characterGroupSpans = this.createCharacterGroupSpans(span);
         characterGroupSpans.forEach((charGroupSpan) => {
           bodies.push(this.createBodyForElm(charGroupSpan));
@@ -382,7 +382,7 @@ class PlatformRevealer {
       border: 'none',
       color: 'white',
       opacity: 0.2,
-      zIndex: 1000000, 
+      zIndex: 9999999999999999, 
     };
     for (const s in styles) {
       btn.style[s] = styles[s];
