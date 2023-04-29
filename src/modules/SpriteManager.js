@@ -37,6 +37,7 @@ class SpriteManager {
       const holder = document.createElement('div');
       holder.id = id;
       holder.style.display = 'none';
+      holder.setAttribute('data-mario-ignore', '');
       this.spriteImages.forEach((imgPath) => {
         const img = document.createElement('img');
         img.src = this.p(imgPath);

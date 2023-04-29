@@ -25,6 +25,7 @@ class PageWorld {
   typeCorrectionsMaps = null;
   bodyObjAttr = 'data-mario-has-body-obj';
   fontSizeThreshold = 36;// above this size, create separate spans for capitals, ascenders and descenders
+  bodies = [];// will contain all bodies
 
   constructor(options) {
     this.Matter = options.Matter;
@@ -112,7 +113,7 @@ class PageWorld {
         return;
       }
       this.wrapElmTextNodesWithSpans(elm, spans);
-      this.addBodyAttr(elm);
+      // this.addBodyAttr(elm);
     });
     return spans;
   }
@@ -232,7 +233,10 @@ class PageWorld {
       styles['border-bottom-right-radius'],
       styles['border-bottom-left-radius'],
     ];
-    const radius = radiusInPx.map((r) => parseFloat(r));
+    const radius = radiusInPx.map((r) => parseInt(r, 10));
+    // when radius !== 0, using chamfer positions body slightly off.
+    // matter's documentation does not mention chamfer as an option for Body,
+    // but only for Vertices. Maybe use that?
     const chamfer = {
       radius,
     };
@@ -241,7 +245,7 @@ class PageWorld {
       isStatic: true,
       chamfer,
       render: {
-        fillStyle: 'red',
+        fillStyle: 'green',
         opacity: this.shapeOpacity,
       },
       label: 'platform',
@@ -261,9 +265,10 @@ class PageWorld {
     const x = left + width / 2;
     const y = correctedTop + correctedHeight / 2;
 
+    
     const body = this.Matter.Bodies.rectangle(x, y, width, correctedHeight, options);
 
-    this.elmsUsedForBodies.push(elm);
+    this.addBodyAttr(elm);
 
     return body;
   }
@@ -279,7 +284,7 @@ class PageWorld {
     elm.setAttribute(this.bodyObjAttr, '');
   }
 
-  addTextLevelBodies(bodies, selectors) {
+  addTextLevelBodies(selectors) {
     const textLevelSpans = this.createSpansForTextNodes(selectors);
     textLevelSpans.forEach((span) => {
       // check of the font-size is big enough to want to take height of
@@ -288,47 +293,112 @@ class PageWorld {
       if (fontSize >= this.fontSizeThreshold) {
         const characterGroupSpans = this.createCharacterGroupSpans(span);
         characterGroupSpans.forEach((charGroupSpan) => {
-          bodies.push(this.createBodyForElm(charGroupSpan));
+          this.bodies.push(this.createBodyForElm(charGroupSpan));
         });
       } else {
         const lineSpans = this.createLineSpans(span);
         lineSpans.forEach((lineSpan) => {
-          bodies.push(this.createBodyForElm(lineSpan));
+          this.bodies.push(this.createBodyForElm(lineSpan));
         });
       }
     });
     return textLevelSpans;
   }
 
-  // create bodies for elements that need to be treated as a solid block
-  // no corrections for actual text width etc
-  addBlockLevelBodies(bodies, selector) {
-    const elms = document.querySelectorAll(selector);
+  // check if elm has a parent with a border radius and overflow hidden
+  checkParentWithBorderRadius(elm) {
+    let elmToUse = elm;
+    const parent = elm.parentNode;
+    const thresholdRadius = 10;
+
+    if (parent.offsetWidth <= elm.offsetWidth || parent.offsetHeight <= elm.offsetHeight) {
+      const styles = getComputedStyle(parent);
+      if (styles.overflow === 'hidden') {
+        const radiusStr = styles.borderRadius;
+        const radii = radiusStr.split(' ');
+        let hasRadius = false;
+        for (const radius of radii) {
+          if (parseInt(radius) >= thresholdRadius) {
+            hasRadius = true;
+            break;
+          }
+        }
+        if (hasRadius) {
+          elmToUse = parent;
+        }
+      }
+      if (elmToUse === elm && parent !== document.body) {
+        elmToUse = this.checkParentWithBorderRadius(parent);
+      }
+    }
+    return elmToUse;
+  }
+
+  // create bodies for elements
+  addBodiesForElements(elms) {
     elms.forEach((elm) => {
       // when elm is matched by multiple selectors,
       // make sure we only create bodies for it once
       if (this.elmHasBodyObj(elm)) {
         return;
       }
-      bodies.push(this.createBodyForElm(elm));
-      this.addBodyAttr(elm);
+      let elmToUse = elm;
+      if (elm.tagName === 'IMG') {
+        elmToUse = this.checkParentWithBorderRadius(elm);
+      }
+      this.bodies.push(this.createBodyForElm(elmToUse));
     });
   }
 
-  // get the deepest elements that don't have a body object yet
-  getDeepestElementsWithoutBodyOld(elm, deepestElements) {
-    const children = Array.from(elm.children);
-    children.forEach(child => {
-      if (this.elmHasBodyObj(child)) {
+  // create bodies for elements that need to be treated as a solid block
+  // no corrections for actual text width etc
+  addBlockLevelBodies(selector) {
+    const elms = document.querySelectorAll(selector);
+    this.addBodiesForElements(elms);
+  }
+
+  getBorderWidth(styles, prop) {
+    // value looks like 1px solid rgb(...) (always in px);
+    // unless prop is 'border' and not all borders are identical, then its ''
+    const borderStr = styles[prop];
+    if (borderStr === '') {
+      return 1;// make it return anything but zero, so we'll continue to parse props
+    }
+    return parseInt(styles[prop].split(' ')[0], 10);
+  }
+
+  addElementsWithBorder(elmsWithBorder, nodes) {
+    nodes.forEach(node => {
+      // if node isn't element, or already has body obj, stop
+      if (node.nodeType !== Node.ELEMENT_NODE || this.elmHasBodyObj(node)) {
         return;
-      } else if (child.children.length) {
-        // it still has children
-        this.getDeepestElementsWithoutBodyOld(child, deepestElements);
-      } else {
-        // it the deepest child;
-        deepestElements.push(child);
       }
-    });
+      const elm = node;
+      const styles = getComputedStyle(elm);
+      let hasFullBorder = true;
+      const borderProps = ['border', 'borderTop', 'borderRight', 'borderBottom', 'borderLeft'];
+      for (const prop of borderProps) {
+        if (this.getBorderWidth(styles, prop) === 0) {
+          // side has no border, so no full border for element
+          hasFullBorder = false;
+          break;
+        };
+      }
+
+      if (hasFullBorder) {
+        elmsWithBorder.push(elm);
+      } else {
+        this.addElementsWithBorder(elmsWithBorder, elm.childNodes);
+      };
+    })
+  }
+
+  // add elements that have a border all around
+  addBorderedBodies() {
+    const elmsWithBorder = [];
+    this.addElementsWithBorder(elmsWithBorder, document.body.childNodes);
+    // console.log('elmsWithBorder:', elmsWithBorder);
+    this.addBodiesForElements(elmsWithBorder);
   }
 
   createBodiesForHtmlElements() {
@@ -337,11 +407,11 @@ class PageWorld {
     // define selector for elms where we don't want to dig down further
     // we'll only create spans per line there
     // const textLevelSelector = 'h1, h2, h3, h4, h5, h6, p, label';
-    const bodies = [];
     this.typeCorrectionsMaps = new TypeCorrectionsMaps();
-    this.addBlockLevelBodies(bodies, blockLevelSelector);
-    this.addTextLevelBodies(bodies, 'body');
-    return bodies;
+    this.addBorderedBodies();
+    this.addBlockLevelBodies(blockLevelSelector);
+    this.addTextLevelBodies('body');
+    return this.bodies;
   }
 
 }
@@ -744,6 +814,7 @@ class SpriteManager {
       const holder = document.createElement('div');
       holder.id = id;
       holder.style.display = 'none';
+      holder.setAttribute('data-mario-ignore', '');
       this.spriteImages.forEach((imgPath) => {
         const img = document.createElement('img');
         img.src = this.p(imgPath);

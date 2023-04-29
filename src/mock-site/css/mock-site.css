@@ -1,3 +1,7 @@
+* {
+  box-sizing: border-box;
+}
+
 html,
 body {
   margin: 0;
@@ -111,4 +115,16 @@ p:last-child {
   padding: 1em;
   border: 1px solid;
   border-bottom: 2px solid red;
+}
+
+.elm--with-rounded-corner {
+  overflow: hidden;
+  padding: 0;
+  /* border-top-left-radius: 10rem; */
+  border-top-left-radius: 250px;
+  /* border-top-left-radius: 250px;
+  border-bottom-left-radius: 250px; */
+  /* border-bottom-left-radius: 200px; */
+  border-bottom-right-radius: 0px;
+  line-height: 0;
 }

@@ -4,6 +4,7 @@ class PageWorld {
   typeCorrectionsMaps = null;
   bodyObjAttr = 'data-mario-has-body-obj';
   fontSizeThreshold = 36;// above this size, create separate spans for capitals, ascenders and descenders
+  bodies = [];// will contain all bodies
 
   constructor(options) {
     this.Matter = options.Matter;
@@ -91,7 +92,7 @@ class PageWorld {
         return;
       }
       this.wrapElmTextNodesWithSpans(elm, spans);
-      this.addBodyAttr(elm);
+      // this.addBodyAttr(elm);
     });
     return spans;
   }
@@ -194,13 +195,55 @@ class PageWorld {
 
     const fontSize = parseFloat(styles['font-size']);
     // line-height doesn't seem to affect the excess areas at top and bottom
-    const topCorrection = fontSize * correctionFactors.top;
-    const heightCorrection = fontSize * correctionFactors.height;
+    const top = fontSize * correctionFactors.top;
+    const height = fontSize * correctionFactors.height;
 
     return {
-      topCorrection,
-      heightCorrection,
+      top,
+      height,
     };
+  }
+
+  // get a single chamfer correction
+  getChamferCorrection(size, radius) {
+    const displacementBase = 76 * size / 1000;
+    const fraction = size / radius;
+    // calculate to what power 2 should be raised to result in fraction
+    const power = Math.log2(fraction);
+    // const displacement = Math.round(displacementBase / 3.5 ** power);
+    const displacement = Math.round(displacementBase / 3.5 ** power);
+
+    return displacement;
+  }
+
+  // when radius !== 0, using chamfer positions body slightly off.
+  // get proper correction based on radii, width, height
+  getTotalChamferCorrection(width, height, radii) {
+    /*
+    when elm = 1000*1000 px, and border-top-left-radius is 1000px,
+    offset (dx, dy) to the top and left is 76px;
+    this applies when there is only one rounded corner.
+    so for cases where 1 border-radius is 100%:
+    dx = 76 * width/1000
+    then when r becomes 50% smaller, dx becomes 3.5x smaller
+    so, when r becomes r / 2**n, dx becomes 3.5**n smaller
+    */
+    // calculate baseDisplacement
+    // loop over four values of radii
+    const dxs = [];
+    const dys = [];
+    for (const radius of radii) {
+      dxs.push(this.getChamferCorrection(width, radius))
+      dys.push(this.getChamferCorrection(height, radius))
+    }
+    // offsets for top and left are < 0, so those corrections are > 0
+    // for bottom and right it's the opposite
+    const dx = dxs[0] - dxs[1] - dxs[2] + dxs[3];
+    const dy = dys[0] + dys[1] - dys[2] - dys[3];
+    // console.log('dxs:', dxs);
+    // console.log('{dx, dy}:', {dx, dy});
+  
+   return { dx, dy};
   }
 
   createBodyForElm(elm) {
@@ -211,16 +254,16 @@ class PageWorld {
       styles['border-bottom-right-radius'],
       styles['border-bottom-left-radius'],
     ];
-    const radius = radiusInPx.map((r) => parseFloat(r));
+    const radii = radiusInPx.map((r) => parseInt(r, 10));
     const chamfer = {
-      radius,
+      radius: radii,
     };
 
     const options = {
       isStatic: true,
       chamfer,
       render: {
-        fillStyle: 'red',
+        fillStyle: 'green',
         opacity: this.shapeOpacity,
       },
       label: 'platform',
@@ -228,21 +271,31 @@ class PageWorld {
 
     // get pos relative to viewport
     const { width, height, top, left } = elm.getBoundingClientRect();
-    let topCorrection = 0;
-    let heightCorrection = 0;
-    if (elm.tagName === 'SPAN') {
-      const corrections = this.getTypeCorrections(elm, styles);
-      topCorrection = corrections.topCorrection;
-      heightCorrection = corrections.heightCorrection;
-    }
-    const correctedTop = top + topCorrection;
-    const correctedHeight = height + heightCorrection;
-    const x = left + width / 2;
-    const y = correctedTop + correctedHeight / 2;
+    let typeCorrectionTop = 0;
+    let typeCorrectionHeight = 0;
 
+    // get chamfer correction when elm has a border radius
+    let chamferCorrection = { dx: 0, dy: 0 };
+    if (radii.join(',') !== '0,0,0,0') {
+      chamferCorrection = this.getTotalChamferCorrection(width, height, radii);
+      // console.log('chamferCorrection:', chamferCorrection);
+    }
+
+    // get type corrections for spans
+    if (elm.tagName === 'SPAN') {
+      const typeCorrections = this.getTypeCorrections(elm, styles);
+      typeCorrectionTop = typeCorrections.top;
+      typeCorrectionHeight = typeCorrections.height;
+    }
+    const correctedTop = top + typeCorrectionTop;
+    const correctedHeight = height + typeCorrectionHeight;
+    const x = left + width / 2 + chamferCorrection.dx;
+    const y = correctedTop + correctedHeight / 2 + chamferCorrection.dy;
+
+    
     const body = this.Matter.Bodies.rectangle(x, y, width, correctedHeight, options);
 
-    this.elmsUsedForBodies.push(elm);
+    this.addBodyAttr(elm);
 
     return body;
   }
@@ -258,7 +311,7 @@ class PageWorld {
     elm.setAttribute(this.bodyObjAttr, '');
   }
 
-  addTextLevelBodies(bodies, selectors) {
+  addTextLevelBodies(selectors) {
     const textLevelSpans = this.createSpansForTextNodes(selectors);
     textLevelSpans.forEach((span) => {
       // check of the font-size is big enough to want to take height of
@@ -267,31 +320,68 @@ class PageWorld {
       if (fontSize >= this.fontSizeThreshold) {
         const characterGroupSpans = this.createCharacterGroupSpans(span);
         characterGroupSpans.forEach((charGroupSpan) => {
-          bodies.push(this.createBodyForElm(charGroupSpan));
+          this.bodies.push(this.createBodyForElm(charGroupSpan));
         });
       } else {
         const lineSpans = this.createLineSpans(span);
         lineSpans.forEach((lineSpan) => {
-          bodies.push(this.createBodyForElm(lineSpan));
+          this.bodies.push(this.createBodyForElm(lineSpan));
         });
       }
     });
     return textLevelSpans;
   }
 
-  // create bodies for elements that need to be treated as a solid block
-  // no corrections for actual text width etc
-  addBlockLevelBodies(bodies, selector) {
-    const elms = document.querySelectorAll(selector);
+  // check if elm has a parent with a border radius and overflow hidden
+  checkParentWithBorderRadius(elm) {
+    let elmToUse = elm;
+    const parent = elm.parentNode;
+    const thresholdRadius = 10;
+
+    if (parent.offsetWidth <= elm.offsetWidth || parent.offsetHeight <= elm.offsetHeight) {
+      const styles = getComputedStyle(parent);
+      if (styles.overflow === 'hidden') {
+        const radiusStr = styles.borderRadius;
+        const radii = radiusStr.split(' ');
+        let hasRadius = false;
+        for (const radius of radii) {
+          if (parseInt(radius) >= thresholdRadius) {
+            hasRadius = true;
+            break;
+          }
+        }
+        if (hasRadius) {
+          elmToUse = parent;
+        }
+      }
+      if (elmToUse === elm && parent !== document.body) {
+        elmToUse = this.checkParentWithBorderRadius(parent);
+      }
+    }
+    return elmToUse;
+  }
+
+  // create bodies for elements
+  addBodiesForElements(elms) {
     elms.forEach((elm) => {
       // when elm is matched by multiple selectors,
       // make sure we only create bodies for it once
       if (this.elmHasBodyObj(elm)) {
         return;
       }
-      bodies.push(this.createBodyForElm(elm));
-      this.addBodyAttr(elm);
+      let elmToUse = elm;
+      if (elm.tagName === 'IMG') {
+        elmToUse = this.checkParentWithBorderRadius(elm);
+      }
+      this.bodies.push(this.createBodyForElm(elmToUse));
     });
+  }
+
+  // create bodies for elements that need to be treated as a solid block
+  // no corrections for actual text width etc
+  addBlockLevelBodies(selector) {
+    const elms = document.querySelectorAll(selector);
+    this.addBodiesForElements(elms);
   }
 
   getBorderWidth(styles, prop) {
@@ -304,7 +394,7 @@ class PageWorld {
     return parseInt(styles[prop].split(' ')[0], 10);
   }
 
-  checkElementsForBorder(elmsWithBorder, nodes) {
+  addElementsWithBorder(elmsWithBorder, nodes) {
     nodes.forEach(node => {
       // if node isn't element, or already has body obj, stop
       if (node.nodeType !== Node.ELEMENT_NODE || this.elmHasBodyObj(node)) {
@@ -325,16 +415,17 @@ class PageWorld {
       if (hasFullBorder) {
         elmsWithBorder.push(elm);
       } else {
-        this.checkElementsForBorder(elmsWithBorder, elm.childNodes);
+        this.addElementsWithBorder(elmsWithBorder, elm.childNodes);
       };
     })
   }
 
   // add elements that have a border all around
-  addBorderedBodies(bodies) {
+  addBorderedBodies() {
     const elmsWithBorder = [];
-    this.checkElementsForBorder(elmsWithBorder, document.body.childNodes);
-    console.log('elmsWithBorder:', elmsWithBorder);
+    this.addElementsWithBorder(elmsWithBorder, document.body.childNodes);
+    // console.log('elmsWithBorder:', elmsWithBorder);
+    this.addBodiesForElements(elmsWithBorder);
   }
 
   createBodiesForHtmlElements() {
@@ -343,12 +434,11 @@ class PageWorld {
     // define selector for elms where we don't want to dig down further
     // we'll only create spans per line there
     // const textLevelSelector = 'h1, h2, h3, h4, h5, h6, p, label';
-    const bodies = [];
     this.typeCorrectionsMaps = new TypeCorrectionsMaps();
-    this.addBorderedBodies(bodies);
-    this.addBlockLevelBodies(bodies, blockLevelSelector);
-    this.addTextLevelBodies(bodies, 'body');
-    return bodies;
+    this.addBorderedBodies();
+    this.addBlockLevelBodies(blockLevelSelector);
+    this.addTextLevelBodies('body');
+    return this.bodies;
   }
 
 }

@@ -34,10 +34,32 @@
 
   <div class="container">
     <div class="row">
-      <div class="col-md-8 offset-md-2">
+      <div class="col-md-12">
         <div class="o-content-section">
-          <div class="elm--with-border" id="zup">
+          <div id="img-container" style="width: 500px; height: 500px;">
+            <div class="elm--with-rounded-corner" id="zup">
+              <img src="https://placekitten.com/500/500" alt="">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="container">
+    <div class="row">
+      <div class="col-md-4 offset-md-1">
+        <div class="o-content-section">
+          <div class="elm--with-border">
             <p>This element has a border so it will be treated as a solid block</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 offset-md-1">
+        <div class="o-content-section">
+          <div class="elm--with-rounded-corner" id="zup">
+            <img src="https://placekitten.com/360/300" alt="">
           </div>
         </div>
       </div>
@@ -138,7 +160,7 @@
   
 
   <script>
-    const requireClick = true;
+    const requireClick = false;
     const useBundle = false;
 
     const addScript = src => {
