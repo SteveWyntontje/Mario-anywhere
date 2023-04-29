@@ -353,7 +353,8 @@ class PageWorld {
   }
 
   // check if elm has a parent with a border radius and overflow hidden
-  checkParentWithBorderRadius(elm, originalElm = elm) {
+  checkParentWithBorderRadius(elm, originalElm) {
+    originalElm = originalElm || elm;
     let elmToUse = originalElm;
     const parent = elm.parentNode;
     const thresholdRadius = 50; // under this value, offset of wrongly positioned body is so small that we don't have to do correction
