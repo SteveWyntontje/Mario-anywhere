@@ -216,13 +216,55 @@ class PageWorld {
 
     const fontSize = parseFloat(styles['font-size']);
     // line-height doesn't seem to affect the excess areas at top and bottom
-    const topCorrection = fontSize * correctionFactors.top;
-    const heightCorrection = fontSize * correctionFactors.height;
+    const top = fontSize * correctionFactors.top;
+    const height = fontSize * correctionFactors.height;
 
     return {
-      topCorrection,
-      heightCorrection,
+      top,
+      height,
     };
+  }
+
+  // get a single chamfer correction
+  getChamferCorrection(size, radius) {
+    const displacementBase = 76 * size / 1000;
+    const fraction = size / radius;
+    // calculate to what power 2 should be raised to result in fraction
+    const power = Math.log2(fraction);
+    // const displacement = Math.round(displacementBase / 3.5 ** power);
+    const displacement = Math.round(displacementBase / 3.5 ** power);
+
+    return displacement;
+  }
+
+  // when radius !== 0, using chamfer positions body slightly off.
+  // get proper correction based on radii, width, height
+  getTotalChamferCorrection(width, height, radii) {
+    /*
+    when elm = 1000*1000 px, and border-top-left-radius is 1000px,
+    offset (dx, dy) to the top and left is 76px;
+    this applies when there is only one rounded corner.
+    so for cases where 1 border-radius is 100%:
+    dx = 76 * width/1000
+    then when r becomes 50% smaller, dx becomes 3.5x smaller
+    so, when r becomes r / 2**n, dx becomes 3.5**n smaller
+    */
+    // calculate baseDisplacement
+    // loop over four values of radii
+    const dxs = [];
+    const dys = [];
+    for (const radius of radii) {
+      dxs.push(this.getChamferCorrection(width, radius))
+      dys.push(this.getChamferCorrection(height, radius))
+    }
+    // when elm has multiple rounded corners, the displacements they would get for
+    // a single corner are added up - it's not completely accurate, but good enough
+    // offsets for top and left are < 0, so those corrections are > 0
+    // for bottom and right it's the opposite
+    const dx = dxs[0] - dxs[1] - dxs[2] + dxs[3];
+    const dy = dys[0] + dys[1] - dys[2] - dys[3];
+  
+   return { dx, dy};
   }
 
   createBodyForElm(elm) {
@@ -233,12 +275,9 @@ class PageWorld {
       styles['border-bottom-right-radius'],
       styles['border-bottom-left-radius'],
     ];
-    const radius = radiusInPx.map((r) => parseInt(r, 10));
-    // when radius !== 0, using chamfer positions body slightly off.
-    // matter's documentation does not mention chamfer as an option for Body,
-    // but only for Vertices. Maybe use that?
+    const radii = radiusInPx.map((r) => parseInt(r, 10));
     const chamfer = {
-      radius,
+      radius: radii,
     };
 
     const options = {
@@ -253,17 +292,25 @@ class PageWorld {
 
     // get pos relative to viewport
     const { width, height, top, left } = elm.getBoundingClientRect();
-    let topCorrection = 0;
-    let heightCorrection = 0;
-    if (elm.tagName === 'SPAN') {
-      const corrections = this.getTypeCorrections(elm, styles);
-      topCorrection = corrections.topCorrection;
-      heightCorrection = corrections.heightCorrection;
+    let typeCorrectionTop = 0;
+    let typeCorrectionHeight = 0;
+
+    // get chamfer correction when elm has a border radius
+    let chamferCorrection = { dx: 0, dy: 0 };
+    if (radii.join(',') !== '0,0,0,0') {
+      chamferCorrection = this.getTotalChamferCorrection(width, height, radii);
     }
-    const correctedTop = top + topCorrection;
-    const correctedHeight = height + heightCorrection;
-    const x = left + width / 2;
-    const y = correctedTop + correctedHeight / 2;
+
+    // get type corrections for spans
+    if (elm.tagName === 'SPAN') {
+      const typeCorrections = this.getTypeCorrections(elm, styles);
+      typeCorrectionTop = typeCorrections.top;
+      typeCorrectionHeight = typeCorrections.height;
+    }
+    const correctedTop = top + typeCorrectionTop;
+    const correctedHeight = height + typeCorrectionHeight;
+    const x = left + width / 2 + chamferCorrection.dx;
+    const y = correctedTop + correctedHeight / 2 + chamferCorrection.dy;
 
     
     const body = this.Matter.Bodies.rectangle(x, y, width, correctedHeight, options);
@@ -306,10 +353,10 @@ class PageWorld {
   }
 
   // check if elm has a parent with a border radius and overflow hidden
-  checkParentWithBorderRadius(elm) {
-    let elmToUse = elm;
+  checkParentWithBorderRadius(elm, originalElm = elm) {
+    let elmToUse = originalElm;
     const parent = elm.parentNode;
-    const thresholdRadius = 10;
+    const thresholdRadius = 50; // under this value, offset of wrongly positioned body is so small that we don't have to do correction
 
     if (parent.offsetWidth <= elm.offsetWidth || parent.offsetHeight <= elm.offsetHeight) {
       const styles = getComputedStyle(parent);
@@ -327,8 +374,9 @@ class PageWorld {
           elmToUse = parent;
         }
       }
-      if (elmToUse === elm && parent !== document.body) {
-        elmToUse = this.checkParentWithBorderRadius(parent);
+      // if haven't found a parent with border-radius continue
+      if (elmToUse === originalElm && parent !== document.body) {
+        elmToUse = this.checkParentWithBorderRadius(parent, originalElm);
       }
     }
     return elmToUse;

@@ -120,11 +120,8 @@ p:last-child {
 .elm--with-rounded-corner {
   overflow: hidden;
   padding: 0;
-  /* border-top-left-radius: 10rem; */
-  border-top-left-radius: 250px;
-  /* border-top-left-radius: 250px;
-  border-bottom-left-radius: 250px; */
-  /* border-bottom-left-radius: 200px; */
-  border-bottom-right-radius: 0px;
+  /* border-radius: 200px; */
+  border-top-left-radius: 150px;
+  border-bottom-left-radius: 150px;
   line-height: 0;
 }

@@ -236,12 +236,12 @@ class PageWorld {
       dxs.push(this.getChamferCorrection(width, radius))
       dys.push(this.getChamferCorrection(height, radius))
     }
+    // when elm has multiple rounded corners, the displacements they would get for
+    // a single corner are added up - it's not completely accurate, but good enough
     // offsets for top and left are < 0, so those corrections are > 0
     // for bottom and right it's the opposite
     const dx = dxs[0] - dxs[1] - dxs[2] + dxs[3];
     const dy = dys[0] + dys[1] - dys[2] - dys[3];
-    // console.log('dxs:', dxs);
-    // console.log('{dx, dy}:', {dx, dy});
   
    return { dx, dy};
   }
@@ -278,7 +278,6 @@ class PageWorld {
     let chamferCorrection = { dx: 0, dy: 0 };
     if (radii.join(',') !== '0,0,0,0') {
       chamferCorrection = this.getTotalChamferCorrection(width, height, radii);
-      // console.log('chamferCorrection:', chamferCorrection);
     }
 
     // get type corrections for spans
@@ -333,10 +332,10 @@ class PageWorld {
   }
 
   // check if elm has a parent with a border radius and overflow hidden
-  checkParentWithBorderRadius(elm) {
-    let elmToUse = elm;
+  checkParentWithBorderRadius(elm, originalElm = elm) {
+    let elmToUse = originalElm;
     const parent = elm.parentNode;
-    const thresholdRadius = 10;
+    const thresholdRadius = 50; // under this value, offset of wrongly positioned body is so small that we don't have to do correction
 
     if (parent.offsetWidth <= elm.offsetWidth || parent.offsetHeight <= elm.offsetHeight) {
       const styles = getComputedStyle(parent);
@@ -354,8 +353,9 @@ class PageWorld {
           elmToUse = parent;
         }
       }
-      if (elmToUse === elm && parent !== document.body) {
-        elmToUse = this.checkParentWithBorderRadius(parent);
+      // if haven't found a parent with border-radius continue
+      if (elmToUse === originalElm && parent !== document.body) {
+        elmToUse = this.checkParentWithBorderRadius(parent, originalElm);
       }
     }
     return elmToUse;
