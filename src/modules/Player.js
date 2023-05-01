@@ -17,7 +17,9 @@ class Player {
   accelerationX = 0.25;
   maxSpeedX = 5;
   totalJumpForce = 0;
+  // used 0.045 combined with initial forceY of 0.03 - somehow was way too much all of a sudden
   maxJumpForce = 0.045; // will be set to negative in applyForceUp, but jump force is easier to reason about when it's all positive
+  // maxJumpForce = 0.0225; // will be set to negative in applyForceUp, but jump force is easier to reason about when it's all positive
   keyLeftIsDown = false;
   keyRightIsDown = false;
   keySpaceIsDown = false;
@@ -145,9 +147,11 @@ class Player {
     // https://github.com/liabru/matter-js/issues/665
 
     if (!this.isInTheAir) {
-      const forceY = 0.03; // will be made negative in applyForceUp
+      const forceY = 0.03; // used to be fine, now way too much?!
+      // const forceY = 0.015; // will be made negative in applyForceUp
       this.applyForceUp(forceY);
       this.totalJumpForce = forceY;
+      console.log('this.totalJumpForce:', this.totalJumpForce);
       this.keySpaceWasUpAfterJumpStart = false;
     }
   }

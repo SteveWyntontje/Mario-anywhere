@@ -121,7 +121,7 @@ p:last-child {
   overflow: hidden;
   padding: 0;
   /* border-radius: 200px; */
-  border-top-left-radius: 150px;
-  border-bottom-left-radius: 150px;
+  border-top-left-radius: 100px;
+  border-bottom-left-radius: 100px;
   line-height: 0;
 }
