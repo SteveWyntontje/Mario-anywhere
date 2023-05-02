@@ -153,9 +153,14 @@ class PageWorld {
     // these spans will always include only one text node
     const textNode = parentSpan.childNodes[0];
     const text = textNode.nodeValue;
-    const asc = '[A-Zbdfhklt\']+'; // matching list for ascenders
+    const useOnlyCapsNoAsc = true;
+    let asc = '[A-Zbdfhklt\']+'; // matching list for ascenders
     const desc = '[gjpqy]+'; // matching list for descenders
-    const exclAscDesc = '[^A-Z^b^d^f^h^k^l^t^g^j^p^q^y]+'; // matching list for excluding ascenders and descenders
+    let exclAscDesc = '[^A-Z^b^d^f^h^k^l^t^g^j^p^q^y]+'; // matching list for excluding ascenders and descenders
+    if (useOnlyCapsNoAsc) {
+      asc = '[A-Z]+'; // matching list for just capitals
+      exclAscDesc = '[^A-Z^g^j^p^q^y]+'; // matching list for excluding capitals and descenders
+    }
     const regex = new RegExp(`(${asc})|(${desc})|(${exclAscDesc})`, 'g');
     const matches = text.match(regex);
 
