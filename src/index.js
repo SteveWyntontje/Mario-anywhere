@@ -15,6 +15,8 @@ let canvasH = 0;
 // player vars
 let player;
 
+let pageScrollCoupling;
+
 const createAliases = () => {
   ({ Composite, Engine, Render, Runner } = Matter);
 };
@@ -43,12 +45,26 @@ const initWorld = (SPRITES) => {
   const wallsAndGround = pageWorld.createWallsAndGround();
   // const elms = pageWorld.createBodiesForHtmlElements0();
   const elms = pageWorld.createBodiesForHtmlElements();
+  pageScrollCoupling = new PageScrollCoupling(Matter, engine);
 
-  player = new Player(engine, render, SPRITES).playerBody;
+  addPlayer(SPRITES);
 
-  const allBodies = [...wallsAndGround, ...elms, player];
+  const allBodies = [...wallsAndGround, ...elms];
   Composite.add(engine.world, allBodies);
 };
+
+const addPlayer = (SPRITES) => {
+  player = new Player(engine, render, SPRITES).playerBody;
+  Composite.add(engine.world, player);
+  
+  pageScrollCoupling.setPlayer(player);
+
+  
+  document.body.addEventListener('resetplayer.mario', () => {
+    Composite.remove(engine.world, player);
+    addPlayer(SPRITES);
+  }, { once: true });
+}
 
 // make sure body has full height (to cover cases where it has been set to 100%, but content is higher)
 const setBodyHeight = () => {
@@ -139,8 +155,9 @@ const init = () => {
       createAliases();
       initGame(spriteBaseUrl);
       addEventListeners();
-      new PageScrollCoupling(Matter, engine, player);
-      new PlatformRevealer(render);
+      // new PageScrollCoupling(Matter, engine, player);
+      // new PlatformRevealer(render);
+      new MarioMenu(render);
     })
     .catch((err) => {
       // eslint-disable-next-line

@@ -1,21 +1,128 @@
+class MarioMenu {
+  platformsAreVisible = false;
+  menuBox = null;
+
+  constructor(render) {
+    this.render = render;
+    this.addMenuBox();
+    this.addRevealButton();
+    this.addResetButton();
+  }
+
+  addMenuBox() {
+    const box = document.createElement('div');
+    const styles = {
+      position: 'fixed',
+      display: 'flex',
+      // justifyContent: 'flex-end',
+      alignItems: 'center',
+      columnGap: '0.5rem',
+      top: '3rem',
+      right: '0.5rem',
+      border: '2px solid',
+      color: 'red',
+      zIndex: 9999999999999999, 
+    }
+    document.body.appendChild(box);
+    this.addStyles(box, styles);
+    this.menuBox = box;
+  }
+
+  addButton(options) {
+    const btnId = options.id;
+    document.getElementById(btnId)?.remove();
+    const btn = document.createElement('button');
+    btn.id = btnId;
+    btn.textContent = options.text;
+    btn.title = options.title;
+    this.menuBox.appendChild(btn);
+
+    const styles = {
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      width: '2rem',
+      height: '2rem',
+      borderRadius: '50%',
+      background: 'black',
+      border: 'none',
+      color: 'white',
+      opacity: 0.2,
+    };
+    this.addStyles(btn, styles);
+    return btn;
+  }
+
+  addRevealButton() {
+    const options = {
+      id: 'mario-platform-revealer',
+      title: 'Toggle platform visibility',
+      text: '?',
+    }
+    const revealBtn = this.addButton(options);
+
+    revealBtn.addEventListener('click', () => {
+      revealBtn.blur();
+      this.togglePlatformVisibility();
+    });
+  }
+
+  addResetButton() {
+    const options = {
+      id: 'mario-reset-button',
+      title: 'Reset Mario',
+      text: '^',
+    }
+    const resetBtn = this.addButton(options);
+
+    resetBtn.addEventListener('click', () => {
+      resetBtn.blur();
+      const evt = new CustomEvent('resetplayer.mario');
+      document.body.dispatchEvent(evt);
+    });
+  }
+
+  addStyles(elm, styles) {
+    for (const s in styles) {
+      elm.style[s] = styles[s];
+    }
+  }
+
+  togglePlatformVisibility() {
+    this.platformsAreVisible = !this.platformsAreVisible;
+    const opacity = this.platformsAreVisible ? 0.2 : 0;
+    this.render.engine.world.bodies.forEach((body) => {
+      if (body.label === 'platform') {
+        body.render.opacity = opacity;
+      }
+    });
+  }
+}
 /* eslint-disable */
 // couple page scrolling behavior to player
 class PageScrollCoupling {
-  constructor(Matter, engine, player) {
+  constructor(Matter, engine) {
+    this.player = null;
     const optimalYMin = 0.25 * window.innerHeight;
     const optimalYMax = 0.75 * window.innerHeight;
 
     Matter.Events.on(engine, 'afterUpdate', () => {
-      const currScrollY = window.scrollY;
-      const playerY = player.position.y;
-      if (playerY - currScrollY < optimalYMin) {
-        const scrollY = player.position.y - optimalYMin;
-        window.scrollTo({ top: scrollY, behavior: 'instant' });
-      } else if (playerY - currScrollY > optimalYMax) {
-        const scrollY = player.position.y - optimalYMax;
-        window.scrollTo({ top: scrollY, behavior: 'instant' });
+      if (this.player) {
+        const currScrollY = window.scrollY;
+        const playerY = this.player.position.y;
+        if (playerY - currScrollY < optimalYMin) {
+          const scrollY = this.player.position.y - optimalYMin;
+          window.scrollTo({ top: scrollY, behavior: 'instant' });
+        } else if (playerY - currScrollY > optimalYMax) {
+          const scrollY = this.player.position.y - optimalYMax;
+          window.scrollTo({ top: scrollY, behavior: 'instant' });
+        }
       }
     });
+  }
+
+  setPlayer(player) {
+    this.player = player;
   }
 }
 
@@ -543,6 +650,7 @@ class Player {
   walkUpdateEveryNth = 5;
   accelerationX = 0.25;
   maxSpeedX = 5;
+  maxSpeedY = 12;
   totalJumpForce = 0;
   // used 0.045 combined with initial forceY of 0.03 - somehow was way too much all of a sudden
   maxJumpForce = 0.045; // will be set to negative in applyForceUp, but jump force is easier to reason about when it's all positive
@@ -660,7 +768,8 @@ class Player {
   // set only x-vector of velocity vector; leave y-vector as is
   setXSpeed(xSpeed) {
     const ySpeed = Matter.Body.getVelocity(this.playerBody).y;
-    Matter.Body.setVelocity(this.playerBody, { x: xSpeed, y: ySpeed });
+    const newYSpeed = Math.min(ySpeed, this.maxSpeedY);
+    Matter.Body.setVelocity(this.playerBody, { x: xSpeed, y: newYSpeed });
   }
 
   applyForceUp(forceY) {
@@ -678,7 +787,6 @@ class Player {
       // const forceY = 0.015; // will be made negative in applyForceUp
       this.applyForceUp(forceY);
       this.totalJumpForce = forceY;
-      console.log('this.totalJumpForce:', this.totalJumpForce);
       this.keySpaceWasUpAfterJumpStart = false;
     }
   }
@@ -977,6 +1085,8 @@ let canvasH = 0;
 // player vars
 let player;
 
+let pageScrollCoupling;
+
 const createAliases = () => {
   ({ Composite, Engine, Render, Runner } = Matter);
 };
@@ -1005,12 +1115,26 @@ const initWorld = (SPRITES) => {
   const wallsAndGround = pageWorld.createWallsAndGround();
   // const elms = pageWorld.createBodiesForHtmlElements0();
   const elms = pageWorld.createBodiesForHtmlElements();
+  pageScrollCoupling = new PageScrollCoupling(Matter, engine);
 
-  player = new Player(engine, render, SPRITES).playerBody;
+  addPlayer(SPRITES);
 
-  const allBodies = [...wallsAndGround, ...elms, player];
+  const allBodies = [...wallsAndGround, ...elms];
   Composite.add(engine.world, allBodies);
 };
+
+const addPlayer = (SPRITES) => {
+  player = new Player(engine, render, SPRITES).playerBody;
+  Composite.add(engine.world, player);
+  
+  pageScrollCoupling.setPlayer(player);
+
+  
+  document.body.addEventListener('resetplayer.mario', () => {
+    Composite.remove(engine.world, player);
+    addPlayer(SPRITES);
+  }, { once: true });
+}
 
 // make sure body has full height (to cover cases where it has been set to 100%, but content is higher)
 const setBodyHeight = () => {
@@ -1101,8 +1225,9 @@ const init = () => {
       createAliases();
       initGame(spriteBaseUrl);
       addEventListeners();
-      new PageScrollCoupling(Matter, engine, player);
-      new PlatformRevealer(render);
+      // new PageScrollCoupling(Matter, engine, player);
+      // new PlatformRevealer(render);
+      new MarioMenu(render);
     })
     .catch((err) => {
       // eslint-disable-next-line

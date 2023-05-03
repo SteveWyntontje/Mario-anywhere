@@ -147,7 +147,6 @@
     </div>
   </div>
 
-  
   <!-- big block with rounded corner -->
   <!-- <div class="container">
     <div class="row">
@@ -166,7 +165,7 @@
 
   <script>
     const requireClick = true;
-    const useBundle = true;
+    const useBundle = false;
 
     const addScript = src => {
       const script = document.createElement('script');
@@ -178,22 +177,13 @@
     const launchGame = (evt) => {
       evt?.currentTarget.blur(); // otherwise pressing space in game will trigger button
       if (useBundle) {
-        const scriptId = 'easter-egg-game-script';
-        if (document.getElementById(scriptId)) {
-          const resetEvent = new CustomEvent('reset.easterEggGame');
-          document.body.dispatchEvent(resetEvent);
-        } else {
-          // const gameUrl = require('@/assets/mario/index.js');
-          // const gameUrl = 'http://localhost:8000/index.js';
           const gameUrl = 'http://localhost:8000/dist/mario.js';
           const script = addScript(gameUrl);
-          script.id = scriptId;
-        }
       } else {
         const moduleScripts = [
           'PageScrollCoupling.js',
           'PageWorld.js',
-          'PlatformRevealer.js',
+          'MarioMenu.js',
           'Player.js',
           'SpriteManager.js',
           'TypeCorrectionsMap.js',

@@ -16,6 +16,7 @@ class Player {
   walkUpdateEveryNth = 5;
   accelerationX = 0.25;
   maxSpeedX = 5;
+  maxSpeedY = 12;
   totalJumpForce = 0;
   // used 0.045 combined with initial forceY of 0.03 - somehow was way too much all of a sudden
   maxJumpForce = 0.045; // will be set to negative in applyForceUp, but jump force is easier to reason about when it's all positive
@@ -133,7 +134,8 @@ class Player {
   // set only x-vector of velocity vector; leave y-vector as is
   setXSpeed(xSpeed) {
     const ySpeed = Matter.Body.getVelocity(this.playerBody).y;
-    Matter.Body.setVelocity(this.playerBody, { x: xSpeed, y: ySpeed });
+    const newYSpeed = Math.min(ySpeed, this.maxSpeedY);
+    Matter.Body.setVelocity(this.playerBody, { x: xSpeed, y: newYSpeed });
   }
 
   applyForceUp(forceY) {
@@ -151,7 +153,6 @@ class Player {
       // const forceY = 0.015; // will be made negative in applyForceUp
       this.applyForceUp(forceY);
       this.totalJumpForce = forceY;
-      console.log('this.totalJumpForce:', this.totalJumpForce);
       this.keySpaceWasUpAfterJumpStart = false;
     }
   }
