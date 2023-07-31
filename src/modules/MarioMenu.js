@@ -14,12 +14,10 @@ class MarioMenu {
     const styles = {
       position: 'fixed',
       display: 'flex',
-      // justifyContent: 'flex-end',
       alignItems: 'center',
       columnGap: '0.5rem',
       top: '3rem',
       right: '0.5rem',
-      border: '2px solid',
       color: 'red',
       zIndex: 9999999999999999, 
     }
