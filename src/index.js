@@ -148,7 +148,7 @@ const loadMatter = () => {
 };
 
 const init = () => {
-  const spriteBaseUrl = 'https://jaron.nl/playground/mario-anywhere/sprites/';
+  const spriteBaseUrl = 'https://jaron.nl/play/mario/sprites/';
   loadMatter()
     .then(() => {
       window.scrollTo({ top: 0, behavior: 'instant'});

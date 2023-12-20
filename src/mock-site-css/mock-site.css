@@ -79,6 +79,11 @@ p:last-child {
   font-size: 1.25rem;
 }
 
+.disclaimer {
+  font-size: 0.875rem;
+  color: #999;
+}
+
 .media-box {
   display: flex;
   column-gap: 2rem;

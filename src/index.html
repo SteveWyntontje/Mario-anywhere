@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="nl-nl">
+<head>
+  <meta charset="UTF-8">
+  
+  <title>Drop Mario!</title>
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <link rel="stylesheet" href="mock-site-css/bootstrap-grid.min.css">
+  <link rel="stylesheet" href="mock-site-css/mock-site.css">
+  <link rel="stylesheet" href="mock-site-css/mock-form.css">
+</head>
+<body>
+  <!-- <button id="launch-btn" class="launch-btn">Give me Mario!</button> -->
+  <div class="masthead"></div>
+  <header class="o-content-section">
+    <div class="container">
+      <div class="row">
+      <div class="col">
+        <nav>
+          <ul class="nav-list u-list-bare">
+            <li><a href="#">Home</a></li>
+            <li><a href="#">Something</a></li>
+            <li><a href="#">About us</a></li>
+            <li><a href="#">Log in</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+  </header>
+
+
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 offset-md-2">
+        <div class="intro o-content-section">
+          <h1>Drop Mario on any website</h1>
+          <p>Click this link 👉 <a
+            href="javascript:void%20function(){var%20a=Math.min,b=Math.abs;class%20c{platformsAreVisible=!1;menuBox=null;constructor(a){this.render=a,this.addMenuBox(),this.addRevealButton(),this.addResetButton()}addMenuBox(){const%20a=document.createElement(%22div%22);document.body.appendChild(a),this.addStyles(a,{position:%22fixed%22,display:%22flex%22,flexDirection:%22column%22,alignItems:%22center%22,gap:%220.5rem%22,bottom:%221.5rem%22,right:%220.5rem%22,zIndex:1e16}),this.menuBox=a}addButton(a){const%20b=a.id;document.getElementById(b)%3F.remove();const%20c=document.createElement(%22button%22);c.id=b,a.svg%3Fc.innerHTML=a.svg:c.textContent=a.text,c.title=a.title,c.classList.add(%22mario-menu-btn%22),this.menuBox.appendChild(c);return%20this.addStyles(c,{display:%22flex%22,justifyContent:%22center%22,alignItems:%22center%22,width:%222rem%22,height:%222rem%22,borderRadius:%2250%25%22,borderRadius:%220.25rem%22,background:%22black%22,color:%22white%22,opacity:.5}),document.styleSheets[0].insertRule(%22.mario-menu-btn:hover%20{opacity:%201%20!important}%22),c}addRevealButton(){const%20a=this.addButton({id:%22mario-platform-revealer%22,title:%22Toggle%20platform%20visibility%22,svg:`%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2032%2032%22%20${%22style=\%22position:absolute;width:2rem;\%22%22}%3E
+            %20%20%20%20%3Cg%3E
+            %20%20%20%20%20%20%3Cpath%20d=%22M6%2023h20v2H6zM14%2018h12v2H14zM6%2013h12v2H6zM13%208h10v2H13z%22%20style=%22stroke-width:0;fill:currentColor%22/%3E
+            %20%20%20%20%3C/g%3E
+            %20%20%3C/svg%3E`,text:%22%3F%22});a.addEventListener(%22click%22,()=%3E{a.blur(),this.togglePlatformVisibility()})}addResetButton(){const%20a=this.addButton({id:%22mario-reset-button%22,title:%22Reset%20Mario%22,text:%22^%22,svg:`%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2032%2032%22%20${%22style=\%22position:absolute;width:2rem;\%22%22}%3E
+            %20%20%3Cpath%20d=%22M23.79%2011.5c-2.48-4.3-8-5.78-12.29-3.29l-.97.56.88-3.27-2.49%201.44-1.24%204.63%204.63%201.24%202.49-1.44-3.27-.87.97-.56c3.34-1.93%207.63-.78%209.56%202.56.94%201.62%201.18%203.51.7%205.31a6.91%206.91%200%200%201-3.26%204.25%206.949%206.949%200%200%201-5.31.7%206.91%206.91%200%200%201-4.25-3.26l-1.73%201a8.926%208.926%200%200%200%205.46%204.19c.78.21%201.56.31%202.34.31%201.56%200%203.1-.41%204.49-1.21%202.08-1.2%203.57-3.14%204.19-5.46s.3-4.75-.9-6.83Z%22%20style=%22fill:currentColor;stroke-width:0%22/%3E
+            %3C/svg%3E`});a.addEventListener(%22click%22,()=%3E{a.blur();const%20b=new%20CustomEvent(%22resetplayer.mario%22);document.body.dispatchEvent(b)})}addStyles(a,b){for(const%20c%20in%20b)a.style[c]=b[c]}togglePlatformVisibility(){this.platformsAreVisible=!this.platformsAreVisible;const%20a=this.platformsAreVisible%3F.2:0;this.render.engine.world.bodies.forEach(b=%3E{%22platform%22===b.label%26%26(b.render.opacity=a)})}}class%20d{constructor(a,b){this.player=null;const%20c=.25*window.innerHeight,d=.75*window.innerHeight;a.Events.on(b,%22afterUpdate%22,()=%3E{if(this.player){const%20a=window.scrollY,b=this.player.position.y;if(b-a%3Cc){const%20a=this.player.position.y-c;window.scrollTo({top:a,behavior:%22instant%22})}else%20if(b-a%3Ed){const%20a=this.player.position.y-d;window.scrollTo({top:a,behavior:%22instant%22})}}})}setPlayer(a){this.player=a}}class%20e{shapeOpacity=0;elmsUsedForBodies=[];typeCorrectionsMaps=null;bodyObjAttr=%22data-mario-has-body-obj%22;fontSizeThreshold=36;bodies=[];constructor(a){this.Matter=a.Matter,this.canvasW=a.canvasW,this.canvasH=a.canvasH}createWallsAndGround(){const%20a={isStatic:!0,render:{opacity:this.shapeOpacity}},c={...a,render:{fillStyle:%22%23c84c0c%22,opacity:1}},d=60,e=this.canvasW/2,f=0-32-d,g=this.canvasH-10,h=b(f)+g+d,i=f+.5*h,j=this.canvasW+.5*d,k=this.Matter.Bodies.rectangle(e,f+.5*d,this.canvasW,d,a),l=this.Matter.Bodies.rectangle(e,g+.5*d,this.canvasW,d,c),m=this.Matter.Bodies.rectangle(0-.5*d,i,d,h,a),n=this.Matter.Bodies.rectangle(j,i,d,h,a);return[l,k,m,n]}wrapTextNodeWithSpan(a){const%20b=document.createElement(%22span%22);return%20b.textContent=a.nodeValue,a.replaceWith(b),b}wrapElmTextNodesWithSpans(a,b){a.childNodes.forEach(a=%3E{const%20c=a.nodeType;if(c===Node.TEXT_NODE){const%20c=!!!a.nodeValue.match(/\S/);if(c)return;const%20d=this.wrapTextNodeWithSpan(a);b.push(d)}else%20if(c===Node.ELEMENT_NODE){if(this.elmHasBodyObj(a))return;this.wrapElmTextNodesWithSpans(a,b)}})}createSpansForTextNodes(a){const%20b=[],c=document.querySelectorAll(a);return%20c.forEach(a=%3E{this.elmHasBodyObj(a)||this.wrapElmTextNodesWithSpans(a,b)}),b}createWordSpans(a){const%20b=a.childNodes[0],c=b.nodeValue,d=c.split(%22%20%22),e=d.map(a=%3E{const%20b=document.createElement(%22span%22);return%20b.setAttribute(%22data-mario-char-group%22,%22regular%22),b.textContent=a+%22%20%22,b});return%20b.replaceWith(...e),e}createLineSpan(a){const%20b=document.createElement(%22span%22);return%20b.setAttribute(%22data-mario-line-group%22,%22%22),b.textContent=a,b}createLineSpans(a){const%20b=this.createWordSpans(a),c=[];let%20d=%22%22,e=null;b.forEach(a=%3E{const%20b=a.offsetTop;if(b===e)d+=a.textContent;else{if(d){const%20a=this.createLineSpan(d);c.push(a)}d=a.textContent,e=b}});const%20f=this.createLineSpan(d);return%20c.push(f),a.replaceChildren(...c),c}createCharacterGroupSpans(a){const%20b=a.childNodes[0],c=b.nodeValue;let%20d=%22[A-Zbdfhklt']+%22;let%20e=%22[^A-Z^b^d^f^h^k^l^t^g^j^p^q^y]+%22;!0%26%26(d=%22[A-Z]+%22,e=%22[^A-Z^g^j^p^q^y]+%22);const%20f=new%20RegExp(`(${d})|(${%22[gjpqy]+%22})|(${e})`,%22g%22),g=c.match(f),h=new%20RegExp(d),i=/[gjpqy]+/,j=g.map(a=%3E{let%20b=%22regular%22;a.match(h)%3Fb=%22asc%22:a.match(i)%26%26(b=%22desc%22);const%20c=document.createElement(%22span%22);return%20c.setAttribute(%22data-mario-char-group%22,b),c.textContent=a,c});return%20b.replaceWith(...j),j}getTypeCorrections(a,b){const%20c=a.getAttribute(%22data-mario-char-group%22)||%22regular%22,d=b[%22font-family%22]%3F.split(%22,%22)[0]||%22%22,e=d.toLowerCase(),f=this.typeCorrectionsMaps[e]||this.typeCorrectionsMaps.default,g=f[c],h=parseFloat(b[%22font-size%22]),i=h*g.top,j=h*g.height;return{top:i,height:j}}getChamferCorrection(a,b){const%20c=Math.log2(a/b),d=Math.round(76*a/1e3/3.5**c);return%20d}getTotalChamferCorrection(a,b,c){const%20d=[],e=[];for(const%20f%20of%20c)d.push(this.getChamferCorrection(a,f)),e.push(this.getChamferCorrection(b,f));const%20f=d[0]-d[1]-d[2]+d[3],g=e[0]+e[1]-e[2]-e[3];return{dx:f,dy:g}}createBodyForElm(a){const%20b=getComputedStyle(a),c=[b[%22border-top-left-radius%22],b[%22border-top-right-radius%22],b[%22border-bottom-right-radius%22],b[%22border-bottom-left-radius%22]],d=c.map(a=%3EparseInt(a,10)),e={isStatic:!0,chamfer:{radius:d},render:{fillStyle:%22green%22,opacity:this.shapeOpacity},label:%22platform%22},{width:f,height:g,top:h,left:i}=a.getBoundingClientRect();let%20j=0,k=0,l={dx:0,dy:0};if(%220,0,0,0%22!==d.join(%22,%22)%26%26(l=this.getTotalChamferCorrection(f,g,d)),%22SPAN%22===a.tagName){const%20c=this.getTypeCorrections(a,b);j=c.top,k=c.height}const%20m=h+j,n=g+k,o=i+f/2+l.dx,p=m+n/2+l.dy,q=this.Matter.Bodies.rectangle(o,p,f,n,e);return%20this.addBodyAttr(a),q}elmHasBodyObj(a){const%20b=`[${this.bodyObjAttr}]`;return!!(a.hasAttribute(this.bodyObjAttr)||a.closest(b)||a.hasAttribute(%22data-mario-ignore%22)||a.closest(%22[data-mario-ignore]%22))}addBodyAttr(a){a.setAttribute(this.bodyObjAttr,%22%22)}addTextLevelBodies(a){const%20b=this.createSpansForTextNodes(a);return%20b.forEach(a=%3E{const%20b=parseFloat(getComputedStyle(a).fontSize);if(b%3E=this.fontSizeThreshold){const%20b=this.createCharacterGroupSpans(a);b.forEach(a=%3E{this.bodies.push(this.createBodyForElm(a))})}else{const%20b=this.createLineSpans(a);b.forEach(a=%3E{this.bodies.push(this.createBodyForElm(a))})}}),b}checkParentWithBorderRadius(a,b){b=b||a;let%20c=b;const%20d=a.parentNode;if(d.offsetWidth%3C=a.offsetWidth||d.offsetHeight%3C=a.offsetHeight){const%20a=getComputedStyle(d);if(%22hidden%22===a.overflow){const%20b=a.borderRadius,e=b.split(%22%20%22);let%20f=!1;for(const%20a%20of%20e)if(parseInt(a)%3E=50){f=!0;break}f%26%26(c=d)}c===b%26%26d!==document.body%26%26(c=this.checkParentWithBorderRadius(d,b))}return%20c}addBodiesForElements(a){a.forEach(a=%3E{if(this.elmHasBodyObj(a))return;let%20b=a;%22IMG%22===a.tagName%26%26(b=this.checkParentWithBorderRadius(a)),this.bodies.push(this.createBodyForElm(b))})}addBlockLevelBodies(a){const%20b=document.querySelectorAll(a);this.addBodiesForElements(b)}getBorderWidth(a,b){const%20c=a[b];return%22%22===c%3F1:parseInt(a[b].split(%22%20%22)[0],10)}addElementsWithBorder(a,b){b.forEach(b=%3E{if(b.nodeType!==Node.ELEMENT_NODE||this.elmHasBodyObj(b))return;const%20c=b,d=getComputedStyle(c);let%20e=!0;const%20f=[%22border%22,%22borderTop%22,%22borderRight%22,%22borderBottom%22,%22borderLeft%22];for(const%20a%20of%20f)if(0===this.getBorderWidth(d,a)){e=!1;break}e%3Fa.push(c):this.addElementsWithBorder(a,c.childNodes)})}addBorderedBodies(){const%20a=[];this.addElementsWithBorder(a,document.body.childNodes),this.addBodiesForElements(a)}createBodiesForHtmlElements(){return%20this.typeCorrectionsMaps=new%20j,this.addBorderedBodies(),this.addBlockLevelBodies(%22.block-level,%20audio,%20button,%20canvas,%20embed,%20iframe,%20image,%20img,%20input,%20object,%20picture,%20progress,%20select,%20svg,%20textarea,%20video%22),this.addTextLevelBodies(%22body%22),this.bodies}}const%20f={stand:%22stand%22,jump:%22jump%22,walk:%22walk%22,fall:%22fall%22,brake:%22brake%22};class%20g{isInTheAir=!0;playerBody=null;playerSpriteBody=null;lastDir=1;walkCycleIdx=0;walkUpdateIdx=0;walkUpdateEveryNth=5;accelerationX=.25;maxSpeedX=5;maxSpeedY=12;totalJumpForce=0;maxJumpForce=.045;keyLeftIsDown=!1;keyRightIsDown=!1;keySpaceIsDown=!1;keySpaceWasUpAfterJumpStart=!1;constructor(a,b,c){this.engine=a,this.render=b,this.walkCycleLength=c.walk.l.length,this.SPRITES=c,this.createBody(),this.initCollisionDetection(),this.initKeyboardControls(),Matter.Events.on(a,%22afterUpdate%22,()=%3E{this.updateHandler()})}createPlayerSpriteBody(a,b,c){const%20d={label:%22playerShape%22,render:{sprite:{texture:this.SPRITES.stand.r,xScale:1,yScale:1}}},e=Matter.Bodies.rectangle(a,b,c,c,d);return%20e}createFloorSensorBody(a,b,c){const%20d=10,e=Matter.Bodies.rectangle(a,b+c/2-d/2,c-4,d,{label:%22floorSensor%22,render:{fillStyle:%22transparent%22}});return%20e}createBody(){const%20a=this.render.options.width/2-250,b=17;this.playerSpriteBody=this.createPlayerSpriteBody(a,b,32);const%20c=this.createFloorSensorBody(a,b,32);this.playerBody=Matter.Body.create({label:%22player%22,parts:[this.playerSpriteBody,c],restitution:0,friction:0,frictionAir:0,inertia:1/0,mass:1})}checkInTheAir(a){a.pairs.forEach(a=%3E{let%20b;%22floorSensor%22===a.bodyA.label%3Fb=a.bodyA:%22floorSensor%22===a.bodyB.label%26%26(b=a.bodyB),b%26%26(this.removeActiveCollisionDetection(),this.isInTheAir=!1,this.totalJumpForce=this.maxJumpForce)})}removeActiveCollisionDetection(){Matter.Events.off(this.engine,%22collisionActive%22)}addActiveCollisionDetection(){Matter.Events.on(this.engine,%22collisionActive%22,a=%3E{this.checkInTheAir(a)})}initCollisionDetection(){this.addActiveCollisionDetection(),Matter.Events.on(this.engine,%22collisionEnd%22,()=%3E{this.isInTheAir=!0,this.addActiveCollisionDetection()})}getXSpeed(){return%20Matter.Body.getVelocity(this.playerBody).x}setXSpeed(b){const%20c=Matter.Body.getVelocity(this.playerBody).y,d=a(c,this.maxSpeedY);Matter.Body.setVelocity(this.playerBody,{x:b,y:d})}applyForceUp(a){const%20c=this.playerBody;Matter.Body.applyForce(c,{x:c.position.x,y:c.position.y},{x:0,y:-1*a})}jump(){if(!this.isInTheAir){const%20a=.03;this.applyForceUp(a),this.totalJumpForce=a,this.keySpaceWasUpAfterJumpStart=!1}}moveX(a){this.setXSpeed(10*a)}updateSpeedX(){var%20c=Math.max;let%20d=0;const%20e=this.getXSpeed();this.keyLeftIsDown%3F(d=e-this.accelerationX,d=c(d,-1*this.maxSpeedX)):this.keyRightIsDown%3F(d=e+this.accelerationX,d=a(d,this.maxSpeedX)):0%3Ee%3F(d=e+this.accelerationX,d=a(d,0)):0%3Ce%26%26(d=e-this.accelerationX,d=c(d,0)),this.setXSpeed(d),0!==d%26%26(this.lastDir=d/b(d))}updateForceY(){if(this.keySpaceIsDown%26%26this.isInTheAir%26%26!this.keySpaceWasUpAfterJumpStart){const%20a=this.maxJumpForce-this.totalJumpForce,b=5e-4;a%3E=b%26%26(this.applyForceUp(b),this.totalJumpForce+=b)}}initKeyboardControls(){document.body.addEventListener(%22keydown%22,a=%3E{const%20b=a.code;%22Space%22===b%3F(a.preventDefault(),this.keySpaceIsDown=!0,this.jump()):%22ArrowLeft%22===b%3Fthis.keyLeftIsDown=!0:%22ArrowRight%22===b%3Fthis.keyRightIsDown=!0:void%200}),document.body.addEventListener(%22keyup%22,a=%3E{const%20b=a.code;%22Space%22===b%3F(this.keySpaceIsDown=!1,this.keySpaceWasUpAfterJumpStart=!0):%22ArrowLeft%22===b%3Fthis.keyLeftIsDown=!1:%22ArrowRight%22===b%3Fthis.keyRightIsDown=!1:void%200})}getWalkTexture(a){if(0%3Ca%26%26this.keyLeftIsDown)return%20this.SPRITES.brake.l;if(0%3Ea%26%26this.keyRightIsDown)return%20this.SPRITES.brake.r;0===this.walkUpdateIdx%26%26(this.walkCycleIdx++,this.walkCycleIdx===this.walkCycleLength%26%26(this.walkCycleIdx=0)),this.walkUpdateIdx++,this.walkUpdateIdx===this.walkUpdateEveryNth%26%26(this.walkUpdateIdx=0);const%20b=this.mapSpeedToLetter(a);return%20this.SPRITES.walk[b][this.walkCycleIdx]}mapSpeedToLetter(a){return%200%3Ea%3F%22l%22:%22r%22}setSprite(a,b){const%20c=this.playerSpriteBody.render.sprite.texture;let%20d;const%20e=this.mapSpeedToLetter(this.lastDir);a===f.stand%3Fd=this.SPRITES.stand[e]:a===f.jump%3Fd=this.SPRITES.jump[e]:a===f.fall%3Fd=this.SPRITES.fall:a===f.walk%3Fd=this.getWalkTexture(b):void%200;d%26%26d!==c%26%26(this.playerSpriteBody.render.sprite.texture=d)}updateSprite(){const%20a=this.getXSpeed();this.isInTheAir%3Fthis.setSprite(f.jump,a):0===a%3Fthis.setSprite(f.stand,a):this.setSprite(f.walk,a)}updateHandler(){this.updateSpeedX(),this.updateForceY(),this.updateSprite()}}class%20h{playerSprites=[%22r-stand.png%22,%22r-1.png%22,%22r-2.png%22,%22r-3.png%22,%22r-jump.png%22,%22r-brake.png%22,%22l-stand.png%22,%22l-1.png%22,%22l-2.png%22,%22l-3.png%22,%22l-jump.png%22,%22l-brake.png%22,%22fall.png%22];spriteImages=[...this.playerSprites];constructor(a){this.baseUrl=a,this.preloadSprites(),this.SPRITES=this.createActionSprites()}p(a){return%20this.baseUrl+%22mario/%22+a}preloadSprites(){if(!document.getElementById(%22sprite-preloader%22)){const%20a=document.createElement(%22div%22);a.id=%22sprite-preloader%22,a.style.display=%22none%22,a.setAttribute(%22data-mario-ignore%22,%22%22),this.spriteImages.forEach(b=%3E{const%20c=document.createElement(%22img%22);c.src=this.p(b),a.appendChild(c)}),document.body.appendChild(a)}}createActionSprites(){return{stand:{l:this.p(%22l-stand.png%22),r:this.p(%22r-stand.png%22)},jump:{l:this.p(%22l-jump.png%22),r:this.p(%22r-jump.png%22)},brake:{l:this.p(%22l-brake.png%22),r:this.p(%22r-brake.png%22)},walk:{l:[this.p(%22l-1.png%22),this.p(%22l-2.png%22),this.p(%22l-3.png%22)],r:[this.p(%22r-1.png%22),this.p(%22r-2.png%22),this.p(%22r-3.png%22)]},fall:this.p(%22fall.png%22)}}}class%20i{constructor(a){const%20b=Object.assign({totalHeight:44,ascTop:8,ascHeight:29,regularTop:16,regularHeight:21,descHeight:29},a),c={top:b.regularTop/b.totalHeight,height:(b.regularHeight-b.totalHeight)/b.totalHeight},d={top:b.ascTop/b.totalHeight,height:(b.ascHeight-b.totalHeight)/b.totalHeight},e={top:b.regularTop/b.totalHeight,height:(b.descHeight-b.totalHeight)/b.totalHeight};return{regular:c,asc:d,desc:e}}}class%20j{configs={default:null,helveticaneue:{totalHeight:48,ascTop:0,ascHeight:34,regularTop:9,regularHeight:25,descHeight:34}};constructor(){const%20a={};for(const%20b%20in%20this.configs){const%20c=this.configs[b];a[b]=new%20i(c)}return%20a}}(()=%3E{let%20a,b,f,i,j,k,l;const%20m=%22mario-canvas-container%22;let%20n,o,p=0,q=0;const%20r=()=%3E{({Composite:a,Engine:b,Render:f,Runner:i}=Matter)},s=()=%3E{k=f.create({element:l,engine:j,options:{width:p,height:q,wireframes:!1,background:%22transparent%22}}),l.querySelector(%22canvas%22).style.pointerEvents=%22none%22},t=b=%3E{const%20c={Matter,canvasW:p,canvasH:q},f=new%20e(c),g=f.createWallsAndGround(),h=f.createBodiesForHtmlElements();o=new%20d(Matter,j),u(b);const%20i=[...g,...h];a.add(j.world,i)},u=b=%3E{n=new%20g(j,k,b).playerBody,a.add(j.world,n),o.setPlayer(n),document.body.addEventListener(%22resetplayer.mario%22,()=%3E{a.remove(j.world,n),u(b)},{once:!0})},v=()=%3E{const%20a=document.body.parentNode;a.style.minHeight=%22100%25%22,a.style.height=%22auto%22,document.body.style.minHeight=%22100dvh%22,document.body.style.height=%22auto%22},w=()=%3E{const%20a=document.createElement(%22style%22);document.head.appendChild(a);const%20b=a.sheet;b.insertRule(`%23${m}%20canvas%20{%20display:%20block;%20}`)},x=()=%3E{p=document.body.offsetWidth,q=document.body.offsetHeight,l=document.createElement(%22div%22),l.id=m,l.setAttribute(%22data-mario-ignore%22,%22%22);const%20a={position:%22absolute%22,top:0,left:0,height:0,width:0,zIndex:1e16};for(const%20b%20in%20a)l.style[b]=a[b];document.body.appendChild(l)},y=()=%3E{v(),w(),x()},z=a=%3E{y(),j=b.create();const%20c=new%20h(a);s(),t(c.SPRITES);const%20d=i.create();i.run(d,j),f.run(k)},A=()=%3E{Matter=null,document.getElementById(m)%3F.remove(),D()},B=()=%3E{document.body.addEventListener(%22reset.easterEggGame%22,A,{once:!0})},C=()=%3E{const%20a=new%20Promise((a,b)=%3E{const%20c=%22https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js%22,d=document.createElement(%22script%22);d.src=%22https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js%22,d.addEventListener(%22load%22,a),d.addEventListener(%22error%22,a=%3Eb(a)),document.body.appendChild(d)});return%20a},D=()=%3E{const%20a=%22https://jaron.nl/play/mario/sprites/%22;C().then(()=%3E{window.scrollTo({top:0,behavior:%22instant%22}),r(),z(a),B(),new%20c(k)}).catch(a=%3E{console.log(%22can%20not%20load%22,a)})};console.clear(),D()})()}();">Drop Mario!</a> 👈 to add a Mario character that control with <kbd>Left</kbd>, <kbd>Right</kbd>, <kbd>Space</kbd> while he walks and jumps on this page's titles, textss and images. You can also drag the link to your browser's bookmarks bar, and click it to drop Mario on any other website.</p>
+            <p class="disclaimer">Disclaimer: this won't work if the website has set the script-src-elem CSP directive</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- form section -->
+  <div class="container o-content-section">
+    <div class="row">
+      <div class="col-md-4 offset-md-2">
+        <form class="">
+          <ul class="form-list u-list-bare">
+            <li class="form-list__item">
+              <label for="form-name">Name</label><input name="name" id="form-name" />
+            </li>
+            <li class="form-list__item">
+              <label for="form-city">City</label><input name="city" id="form-city" />
+            </li>
+            <li class="form-list__item">
+              <label for="form-remarks">Remarks</label>
+              <textarea name="remarks" id="form-remarks"></textarea>
+            </li>
+            <li class="form-list__item">
+              <button style="margin-top: 2em;">I'm a button</button>
+            </li>
+          </ul>
+        </form>
+      </div>
+      <div class="col-md-4">
+        <ul>
+          <li>This is just an ordinary list-item</li>
+          <li>This is a list-item <a href="#">with a link</a> in it</li>
+          <li>This might look like an ordinary list-item, but it is longer so it runs over multiple lines. What do you think about that?!</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="container .o-content-section">
+
+    <div class="row">
+      <div class="col-md-10">
+        <div class="media-box o-content-section">
+          <div class="media-box__media">
+            <img src="https://placekitten.com/400/300" class="media-box__image">
+            <!-- <img
+              class="media-box__image"
+              src="https://loremflickr.com/400/300"
+              width="400"
+              height="300"
+            > -->
+          </div>
+          <div class="media-box__content">
+            <h2>Some title here</h2>
+            <p>
+              Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt <a href="#">ut laoreet dolore</a> magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.
+            </p>
+            <button style="margin-top: 2em;">I'm a button</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-10 offset-md-2">
+        <div class="media-box o-content-section">
+          <div class="media-box__media media-box__media--right">
+            <!-- <img
+              class="media-box__image"
+              src="https://loremflickr.com/440/330"
+              width="440"
+              height="330"
+            > -->
+            <img src="https://placekitten.com/440/330" class="media-box__image">
+          </div>
+          <div class="media-box__content">
+            <h2>Another title here</h2>
+            <p>
+              Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-10">
+        <div class="media-box o-content-section">
+          <div class="media-box__media">
+            <!-- <img
+              class="media-box__image"
+              src="https://loremflickr.com/400/300"
+              width="400"
+              height="300"
+            > -->
+            <img src="https://placekitten.com/400/300" class="media-box__image">
+          </div>
+          <div class="media-box__content block-level">
+            <h2>This block works as a whole</h2>
+            <p>
+              Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="container">
+    <div class="row">
+      <div class="col-md-4 offset-md-1">
+        <div class="o-content-section">
+          <div class="elm--with-border">
+            <p>This element has a border so it will be treated as a solid block</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 offset-md-1">
+        <div class="o-content-section">
+          <div class="elm--with-rounded-corner" id="zup">
+            <img src="https://placekitten.com/720/300" alt="">
+            <!-- <img
+              alt=""
+              src="https://loremflickr.com/720/300"
+              width="720"
+              height="300"
+            > -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- big block with rounded corner -->
+  <!-- <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="o-content-section">
+          <div id="img-container" style="width: 500px; height: 500px;">
+            <div class="elm--with-rounded-corner" id="zup">
+              <img src="https://placekitten.com/500/500" alt="">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div> -->
+  
+
+  <script>
+    const requireClick = true;
+    const useBundle = false;
+
+    const addScript = src => {
+      const script = document.createElement('script');
+      script.src = src;
+      document.body.appendChild(script);
+      return script;
+    }
+
+    const launchGame = (evt) => {
+      evt?.currentTarget.blur(); // otherwise pressing space in game will trigger button
+      if (useBundle) {
+          const gameUrl = 'http://localhost:8000/dist/mario.js';
+          const script = addScript(gameUrl);
+      } else {
+        const moduleScripts = [
+          'PageScrollCoupling.js',
+          'PageWorld.js',
+          'MarioMenu.js',
+          'Player.js',
+          'SpriteManager.js',
+          'TypeCorrectionsMap.js',
+          'TypeCorrectionsMaps.js',
+        ];
+        moduleScripts.forEach(src => {
+          addScript(`./modules/${src}`);
+        });
+        addScript('./index.js');
+      }
+    };
+
+    if (requireClick) {
+      const btn = document.getElementById('launch-btn');
+      if (btn) {
+        btn.addEventListener('click', launchGame);
+      }
+    } else {
+      launchGame();
+    }
+  </script>
+</body>
+</html>
