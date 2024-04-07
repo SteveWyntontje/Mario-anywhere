@@ -4,7 +4,7 @@ Add a Mario character to any website, and control him with arrow keys and space 
 
 ## Development
 
-run `gulp watch` to concat js files after saving
+Run `gulp watch` to concat js files after saving
 
-## creating a bookmarklet
-paste the contents from dist/mario.js into [Bookmarkleter](https://chriszarate.github.io/bookmarkleter/)
+## Creating a bookmarklet
+Paste the contents from dist/mario.js into [Bookmarkleter](https://chriszarate.github.io/bookmarkleter/)
